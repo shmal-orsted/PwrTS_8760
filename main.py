@@ -4,35 +4,29 @@ Author: Shawn Malone, Clay Matheny
 1/6/2023
 
 Revised Version of Clay's Code removing labor intensive work and preprocessing of data files
-
 """
-
 import pandas as pd
 import glob, os
-
-# import FPM file correctly without preprocessing
-
-files = []
-
-# find input directory folder and add fpm file to file list
-for file in os.listdir("./inputs"):
-    if file.endswith(".fpm"):
-        files.append(file)
-
-mydataset2 = pd.read_csv(f"./inputs/{files[0]}", sep='\t', header=9)
-mydataset2 = mydataset2.set_index("Unnamed: 0")
+import losses_parser, startup
 
 
-# incorporating losses into an initiation file that is parsed for application
+def main():
+    '''
+    Starting with data imported and filepaths brought in
+    '''
+    # import input filepaths
+    filepaths = startup.main()
 
-def startup():
-    losses = {}
+    # Working windfarmer data into usable format
+    mydataset2 = pd.read_csv(filepaths["Windfarmer"], sep='\t', header=9)
+    mydataset2 = mydataset2.set_index("Unnamed: 0")
 
-
-
-    res = bool(losses) #if this dict has anything in it, this will be True
-    return res
+    losses = losses_parser.main(filepaths["Losses"])
+    if not bool(losses):
+        raise Exception("Losses file imported incorrectly")
+    return filepaths, mydataset2, losses
 
 # find ini file and add to directory
 
-startup()
+filepaths, mydataset2, losses = main()
+pass
