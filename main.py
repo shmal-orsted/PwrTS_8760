@@ -14,11 +14,25 @@ import glob, os
 
 files = []
 
-# find input directory folder
+# find input directory folder and add fpm file to file list
 for file in os.listdir("./inputs"):
     if file.endswith(".fpm"):
         files.append(file)
 
 mydataset2 = pd.read_csv(f"./inputs/{files[0]}", sep='\t', header=9)
 mydataset2 = mydataset2.set_index("Unnamed: 0")
-pass
+
+
+# incorporating losses into an initiation file that is parsed for application
+
+def startup():
+    losses = {}
+
+
+
+    res = bool(losses) #if this dict has anything in it, this will be True
+    return res
+
+# find ini file and add to directory
+
+startup()
