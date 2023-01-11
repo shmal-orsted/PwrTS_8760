@@ -33,7 +33,7 @@ def main(losses_file):
         return losses
 
 
-losses_file = "inputs/losses.ini"
+losses_file = "../inputs/losses.ini"
 
 if __name__ == '__main__':
     main(losses_file)
