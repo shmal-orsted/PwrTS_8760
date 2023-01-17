@@ -20,7 +20,7 @@ def main(windfarmer_sectors, windog_data, windog_data_headers):
     windog_data["Power"] = windog_data.apply(lambda x: determine_power(x["Dir Sector"], x["Speed Bin"], windfarmer_sectors), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
-    is_8760 = windog_data[windog_data_headers["direction"]].isna().any()
+    is_8760 = not windog_data[windog_data_headers["direction"]].isna().any()
 
     return windog_data, is_8760
 
