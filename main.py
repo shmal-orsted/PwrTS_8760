@@ -6,7 +6,7 @@ Author: Shawn Malone, Clay Matheny, Meghan Mitchell
 Revised Version of Clay's Code removing labor intensive work and preprocessing of data files
 """
 import pandas as pd
-from functions import losses_parser, startup, windfarmer_process, power_time_series
+from functions import losses_parser, startup, windfarmer_process, power_time_series, losses_app
 import os
 
 
@@ -29,7 +29,8 @@ def main():
     # Making the power time series
     pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers)
 
-    # TODO Apply losses to the power time series
+    # Apply losses to the power time series
+    pwts = losses_app.main(pwts, losses)
 
     return pwts, is_8760
 
