@@ -35,7 +35,7 @@ def main():
     export.export_csv(pwts, working_dir, is_8760)
     export.peer_review_print(is_8760, total_loss, sum_power, losses_sum)
 
-    return pwts, is_8760
+    return
 
 
 pwts_finished = main()
