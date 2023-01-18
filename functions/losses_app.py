@@ -2,7 +2,6 @@ import pandas as pd
 
 def main(pwts, losses_dict):
     # Get a number to apply for all losses, this can change based on additional losses added in later
-    print(losses_dict)
     losses_df = pd.DataFrame.from_dict(losses_dict, orient='index', columns=['loss'])
 
     # for review get total energy production pre-losses
