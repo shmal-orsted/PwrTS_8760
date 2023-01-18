@@ -25,6 +25,6 @@ def peer_review_print(is_8760, total_loss, sum_power, losses_sum):
         f.write("Power Time Series Run with Parameters:\n")
         f.write(f"8760 = {is_8760}\n")
         f.write(f"Total Loss Applied = {total_loss}\n")
-        f.write(f"Sum Power (Pre-Losses) = {sum_power}\n")
-        f.write(f"Sum Power (Post-Losses = {losses_sum}")
+        f.write(f"Gross Power (Pre-Losses) = {sum_power}\n")
+        f.write(f"Net Power (Post-Losses) = {losses_sum}")
     return
