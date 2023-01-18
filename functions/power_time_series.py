@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 
@@ -6,18 +8,14 @@ def main(windfarmer_sectors, windog_data, windog_data_headers):
     Producing a power time series. Getting the wind speed and direction in the historical time series against
     windfarmer data and producing a time series for the entire dataset
 
-    Does not use iterrows, much faster this way
-    :return: Power Time Series
+    Uses interpolation between the floor and ceil of speed bins for a gross power value from the power matrix
+    :return: Power Time Series gross power on inputted historical time series
     """
-
     # determine sector to use for each row
     windog_data["Dir Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
-    # use direction sector and wind speed to get power production at that time stamp in the correct direction sector
-    windog_data["Speed Bin"] = windog_data[windog_data_headers["speed"]].apply(lambda speed: determine_speed_bin(speed))
-
-    # use determined speed bin, direction sector to get power from windfarmer data for each row
-    windog_data["Power"] = windog_data.apply(lambda x: determine_power(x["Dir Sector"], x["Speed Bin"], windfarmer_sectors), axis=1)
+    # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to determine power output
+    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Dir Sector"], windfarmer_sectors), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
     is_8760 = not windog_data[windog_data_headers["direction"]].isna().any()
@@ -48,12 +46,25 @@ def determine_speed_bin(value):
         return round(value)
 
 
-def determine_power(direction_sector, speed_bin, windfarmer_sectors):
-    # determine the power number for each direction sector/speed row
-    if pd.isna(direction_sector):
+def determine_power(speed, direction, windfarmer_sectors):
+
+    if pd.isna(direction):
         return np.NaN
     else:
-        return windfarmer_sectors[f"Sector {int(direction_sector)}"][speed_bin]
+        # first, determine the ratio of the speed value
+        ratio_value = (speed - math.floor(speed))
+
+        # get the upper and lower values of energy production
+        power_lower = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)]
+        power_upper = windfarmer_sectors[f"Sector {int(direction)}"][math.ceil(speed)]
+
+        # Multiply for power production above bin value
+        additional_power = abs(power_upper - power_lower) * ratio_value
+
+        # Add additional power to bin value for gross power production
+        gross_power = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)] + additional_power
+
+        return gross_power
 
 
 if __name__ == "__main__":
