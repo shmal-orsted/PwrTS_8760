@@ -29,11 +29,11 @@ def decide_sector(value):
     for x in range(0, 16):
         if pd.isna(value):
             return np.NaN
-        if 11.25 + x* 22.5 < value < 33.75 + x*22.5:
+        if 11.25 + x* 22.5 <= value <= 33.75 + x*22.5:
                 sector = x + 2
                 return sector
         elif x == 1:
-            if 360 >= value > 348.75 or 0 < value < 11.25:
+            if 360 >= value >= 348.75 or 0 <= value <= 11.25:
                 sector = x + 2
                 return sector
 

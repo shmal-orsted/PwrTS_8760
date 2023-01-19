@@ -10,7 +10,11 @@ If any are missing they should throw exceptions or warnings here
 # build in exceptions or warnings for each one if they are missing, partially, just checking if they are all there for now
 def main(directory):
 
-    files = {}
+    files = {
+        "windfarmer": None,
+        "losses": None,
+        "windog": None,
+    }
 
 
     # find input directory folder and add fpm file to file list

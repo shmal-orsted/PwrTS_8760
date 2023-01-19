@@ -19,7 +19,9 @@ def main():
     filepaths = startup.main(working_dir)
 
     # import windog, windfarmer and losses data
+    #if there is no txt file in the inputs folder default to the tmy branch of the code to make a tmy dataset
     windog_data, windog_data_headers = import_data.import_windog(filepaths["windog"])
+
     windfarmer_data = import_data.import_windfarmer(filepaths["windfarmer"])
     losses = losses_parser.main(filepaths["losses"])
 
