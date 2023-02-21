@@ -11,9 +11,9 @@ def import_windog(windog_filepath):
         windog_data = tmy_main.main()
     else:
         # importing windog data
-        windog_data = pd.read_csv(windog_filepath, sep='\t')
+        windog_data = pd.read_csv(windog_filepath, sep='\t', header=10)
         # convert first column to datetime
-        windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m/%d/%Y %H:%M")
+        windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m-%d-%Y %H:%M")
 
     # Upon import, set references to columns and remove hard coded names throughout code
     # Get list of column headers

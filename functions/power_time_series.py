@@ -1,5 +1,4 @@
 import math
-
 import pandas as pd
 import numpy as np
 
@@ -12,10 +11,10 @@ def main(windfarmer_sectors, windog_data, windog_data_headers):
     :return: Power Time Series gross power on inputted historical time series
     """
     # determine sector to use for each row
-    windog_data["Dir Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
+    windog_data["Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
     # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to determine power output
-    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Dir Sector"], windfarmer_sectors), axis=1)
+    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
     is_8760 = not windog_data[windog_data_headers["direction"]].isna().any()
@@ -48,7 +47,7 @@ def determine_speed_bin(value):
 
 def determine_power(speed, direction, windfarmer_sectors):
 
-    if pd.isna(direction):
+    if pd.isna(direction) or pd.isna(speed):
         return np.NaN
     else:
         # first, determine the ratio of the speed value
