@@ -52,8 +52,10 @@ def main(windog_df, windog_headers):
         tmy_dataset = pd.concat([tmy_dataset, (windog_df.loc[(windog_df["Month"] == date_tuple[0]) & (windog_df["Year"]
                                                                                                       == date_tuple[
                                                                                                           1])])])
+    # making the tmy_dataset into a functional one
+    tmy_dataset = tmy_dataset.reset_index()
 
-    return tmy_dataset
+    return tmy_dataset, windog_headers
 
 
 if __name__ == "__main__":

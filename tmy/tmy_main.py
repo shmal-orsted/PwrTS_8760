@@ -13,6 +13,7 @@ Outputs: TMY from historical time series
 
 from tmy.tmy_functions import import_windog, tmy_process
 import os
+import pandas
 
 
 def main():

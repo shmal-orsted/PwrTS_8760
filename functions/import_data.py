@@ -8,10 +8,10 @@ def import_windog(windog_filepath):
     # TMY will engage here if there is no windog file (.txt) in inputs directory
     if windog_filepath is None:
         print("Missing Windog File, Defaulting to TMY")
-        windog_data = tmy_main.main()
+        windog_data, windog_data_headers = tmy_main.main()
     else:
         # importing windog data
-        windog_data = pd.read_csv(windog_filepath, sep='\t', header=10)
+        windog_data = pd.read_csv(windog_filepath, sep='\t')
         # convert first column to datetime
         windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m-%d-%Y %H:%M")
 

@@ -17,8 +17,8 @@ def main(windfarmer_sectors, windog_data, windog_data_headers):
     windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
-    is_8760 = not windog_data[windog_data_headers["direction"]].isna().any()
-
+    is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
+    windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
     return windog_data, is_8760
 
 
@@ -57,13 +57,23 @@ def determine_power(speed, direction, windfarmer_sectors):
         power_lower = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)]
         power_upper = windfarmer_sectors[f"Sector {int(direction)}"][math.ceil(speed)]
 
+        if power_lower > power_upper:
+            #derating scenario, when lower is higher than upper, switch them
+            power_placeholder = power_lower
+            power_lower = power_upper
+            power_upper = power_placeholder
+
         # Multiply for power production above bin value
         additional_power = abs(power_upper - power_lower) * ratio_value
 
         # Add additional power to bin value for gross power production
-        gross_power = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)] + additional_power
+        #gross_power = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)] + additional_power
+        gross_power = power_lower + additional_power
 
-        return gross_power
+        if gross_power > 302600:
+            return 302600
+        else:
+            return gross_power
 
 
 if __name__ == "__main__":

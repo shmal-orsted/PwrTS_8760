@@ -13,7 +13,7 @@ def main():
             raise Exception("Missing TMY and Standard File for processing")
 
     # importing windog data
-    windog_data = pd.read_csv(windog_tmy_filepath, sep='\t', skiprows=14)
+    windog_data = pd.read_csv(windog_tmy_filepath, sep='\t')
     # convert first column to datetime
     windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m-%d-%Y %H:%M") #Changed this from the standard historical time series, need to establish a consistent formatted output
     # Upon import, set references to columns and remove hard coded names throughout code
