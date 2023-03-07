@@ -1,7 +1,7 @@
 Formatting Notes:
 Windographer file is taken from the export menu, Time Series. The file must include:
   a timestamp, 10min increments
-  Spd at mast height
+  Spd at hub height
   Dir
   Tmp
   Pres
