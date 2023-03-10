@@ -54,6 +54,8 @@ def determine_power(speed, direction, windfarmer_sectors):
         ratio_value = (speed - math.floor(speed))
 
         # get the upper and lower values of energy production
+        if speed < 0:
+            speed = 0
         power_lower = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)]
         power_upper = windfarmer_sectors[f"Sector {int(direction)}"][math.ceil(speed)]
 
