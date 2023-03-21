@@ -6,20 +6,6 @@ def main(windfarmer_data):
     # split direction sectors into new columns and a new dataframe
     list_of_dfs = []
 
-    # getting steps from 0-359 in 16 steps
-    # low = 348.75
-    # high = 11.25
-    # sector = 1
-
-    # need to round the numbers to index them
-
-    # if low > 359:
-    #     low = low - 360
-
-    # if high > 359:
-    #     pass
-
-
     for x in range(0, 16, 1):
 
         low = 348.75 + x*22.5

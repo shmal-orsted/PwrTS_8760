@@ -1,14 +1,14 @@
 import pandas as pd
 from tmy import tmy_main
 
-def import_windog(windog_filepath):
+def import_windog(windog_filepath, startup_params, working_dir):
 
     windog_data_headers_dict = {}
 
-    # TMY will engage here if there is no windog file (.txt) in inputs directory
-    if windog_filepath is None:
+    # TMY will engage here if startup_params["run_8760"] = True
+    if startup_params["run_8760"] is True:
         print("Missing Windog File, Defaulting to TMY")
-        windog_data, windog_data_headers = tmy_main.main()
+        windog_data, windog_data_headers = tmy_main.main(working_dir)
     else:
         # importing windog data
         windog_data = pd.read_csv(windog_filepath, sep='\t')

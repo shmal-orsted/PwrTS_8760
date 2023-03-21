@@ -2,7 +2,7 @@ import math
 import pandas as pd
 import numpy as np
 
-def main(windfarmer_sectors, windog_data, windog_data_headers):
+def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
     """
     Producing a power time series. Getting the wind speed and direction in the historical time series against
     windfarmer data and producing a time series for the entire dataset
@@ -14,7 +14,7 @@ def main(windfarmer_sectors, windog_data, windog_data_headers):
     windog_data["Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
     # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to determine power output
-    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors), axis=1)
+    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors, startup_params["farm_size"]), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
     is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
@@ -45,7 +45,7 @@ def determine_speed_bin(value):
         return round(value)
 
 
-def determine_power(speed, direction, windfarmer_sectors):
+def determine_power(speed, direction, windfarmer_sectors, farm_size):
 
     if pd.isna(direction) or pd.isna(speed):
         return np.NaN
@@ -72,8 +72,11 @@ def determine_power(speed, direction, windfarmer_sectors):
         #gross_power = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)] + additional_power
         gross_power = power_lower + additional_power
 
-        if gross_power > 302600:
-            return 302600
+        #value is defined in the startup_params
+        if gross_power > farm_size*1000:
+            return farm_size*1000
+        elif gross_power < 0.1:
+            return 0
         else:
             return gross_power
 

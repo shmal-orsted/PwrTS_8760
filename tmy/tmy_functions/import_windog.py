@@ -1,16 +1,16 @@
 import pandas as pd
 import os
 
-def main():
+def main(working_dir):
 
     windog_data_headers_dict = {}
 
     # Search for txt file in inputs folder for importing
-    for file in os.listdir(f"tmy/inputs"):
+    for file in os.listdir(os.path.join(working_dir, "inputs")):
         if file.endswith(".txt"):
-            windog_tmy_filepath = f"tmy/inputs/{file}"
+            windog_tmy_filepath = os.path.join(working_dir, "inputs", file)
         else:
-            raise Exception("Missing TMY and Standard File for processing")
+            pass
 
     # importing windog data
     windog_data = pd.read_csv(windog_tmy_filepath, sep='\t')
