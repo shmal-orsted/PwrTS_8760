@@ -27,7 +27,6 @@ def main():
     windfarmer_data = import_data.import_windfarmer(filepaths["windfarmer"])
     losses = losses_parser.main(filepaths["losses"])
 
-
     # processing data and making adjustments before pwts is made
     windfarmer_sectors = windfarmer_process.main(windfarmer_data)
 
@@ -35,7 +34,7 @@ def main():
     pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params)
 
     # Apply losses to the power time series
-    pwts, total_loss, sum_power, losses_sum = losses_app.main(pwts, losses)
+    pwts, total_loss, sum_power, losses_sum = losses_app.main(pwts, losses, windog_data_headers, startup_params)
 
     export.export_csv(pwts, working_dir, is_8760)
     export.peer_review_print(is_8760, total_loss, sum_power, losses_sum, working_dir)

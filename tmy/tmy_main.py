@@ -21,7 +21,7 @@ def main(working_dir):
     # import .txt file in inputs
     windog_data, windog_headers = import_windog.main(working_dir)
     #process data into tmy
-    tmy_dataset = tmy_process.main(windog_data, windog_headers)
+    tmy_dataset = tmy_process.main(windog_data, windog_headers, working_dir)
 
     #export 8760 from tmy part of project back to main branch in correct format
     return tmy_dataset

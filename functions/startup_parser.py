@@ -22,6 +22,9 @@ def main(working_dir, startup_params_file):
 
     startup_params["run_8760"] = bool(startup_params["run_8760"])
     startup_params["farm_size"] = float(startup_params["farm_size"])
+    startup_params["high_temp"] = float(startup_params["high_temp"])
+    startup_params["low_temp"] = float(startup_params["low_temp"])
+
 
     return startup_params
 

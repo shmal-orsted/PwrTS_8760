@@ -27,6 +27,8 @@ def import_windog(windog_filepath, startup_params, working_dir):
             windog_data_headers_dict["direction"] = header
         elif "Timestamp" in header:
             windog_data_headers_dict["timestamp"] = header
+        elif "Tmp" in header:
+            windog_data_headers_dict["temperature"] = header
 
     return windog_data, windog_data_headers_dict
 
