@@ -7,7 +7,7 @@ def import_windog(windog_filepath, startup_params, working_dir):
 
     # TMY will engage here if startup_params["run_8760"] = True
     if startup_params["run_8760"] is True:
-        print("Missing Windog File, Defaulting to TMY")
+        print("run_8760 is True, running TMY and 8760 process")
         windog_data, windog_data_headers = tmy_main.main(working_dir)
     else:
         # importing windog data

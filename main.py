@@ -38,7 +38,7 @@ def main():
     pwts, total_loss, sum_power, losses_sum = losses_app.main(pwts, losses)
 
     export.export_csv(pwts, working_dir, is_8760)
-    export.peer_review_print(is_8760, total_loss, sum_power, losses_sum)
+    export.peer_review_print(is_8760, total_loss, sum_power, losses_sum, working_dir)
 
     return
 

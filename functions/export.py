@@ -12,7 +12,7 @@ def export_csv(pwts, working_dir, is_8760):
     else:
         filename = f"Power Time Series - {datetime.datetime.date(datetime.datetime.now())}"
 
-    path = f"exports/{filename}.csv"
+    path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
     pwts["Gross Power (MWh)"] = pwts["Gross Power"]/1000
     pwts["Net Power (MWh)"] = pwts["Net Power"] / 1000
@@ -21,10 +21,10 @@ def export_csv(pwts, working_dir, is_8760):
     return
 
 
-def peer_review_print(is_8760, total_loss, sum_power, losses_sum):
+def peer_review_print(is_8760, total_loss, sum_power, losses_sum, working_dir):
     timestamp = datetime.datetime.now()
 
-    with open("exports/review.txt", "a") as f:
+    with open(os.path.join(working_dir,"exports", "review.txt"), "a") as f:
         f.write("\n")
         f.write(f"\n{timestamp}\n")
         f.write("Power Time Series Run with Parameters:\n")

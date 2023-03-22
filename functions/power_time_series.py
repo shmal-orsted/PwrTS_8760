@@ -17,8 +17,13 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
     windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors, startup_params["farm_size"]), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
-    is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
-    windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
+    #is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
+    is_8760 = startup_params["run_8760"]
+    #Don't include this line if running 8760
+    if is_8760:
+        pass
+    else:
+        windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
     return windog_data, is_8760
 
 
