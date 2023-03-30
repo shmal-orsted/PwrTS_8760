@@ -20,7 +20,10 @@ def main(working_dir, startup_params_file):
     for key,value in stored_vals["PARAMS"].items():
         startup_params[key]= value
 
-    startup_params["run_8760"] = bool(startup_params["run_8760"])
+    if startup_params["run_8760"] == "True":
+        startup_params["run_8760"] = True
+    else:
+        startup_params["run_8760"] = False
     startup_params["farm_size"] = float(startup_params["farm_size"])
     startup_params["high_temp"] = float(startup_params["high_temp"])
     startup_params["low_temp"] = float(startup_params["low_temp"])
