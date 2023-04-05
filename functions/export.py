@@ -8,9 +8,9 @@ def export_csv(pwts, working_dir, is_8760):
     # Make path to export to, incorporating if it is an 8760
     cwd = os.getcwd()
     if is_8760:
-        filename = f"8760 - {datetime.datetime.date(datetime.datetime.now())}"
+        filename = f"8760 - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     else:
-        filename = f"Power Time Series - {datetime.datetime.date(datetime.datetime.now())}"
+        filename = f"Power Time Series - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
 
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
