@@ -14,6 +14,7 @@ def export_csv(pwts, working_dir, is_8760):
 
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
+    # TODO: cut down columns exported to net and gross power
     pwts["Gross Power (MWh)"] = pwts["Gross Power"]/1000
     pwts["Net Power (MWh)"] = pwts["Net Power"] / 1000
     pwts = pwts.drop(["Gross Power", "Net Power"], axis=1)
@@ -21,15 +22,58 @@ def export_csv(pwts, working_dir, is_8760):
     return
 
 
-def peer_review_print(is_8760, total_loss, sum_power, losses_sum, working_dir):
+def peer_review_print(pwts, is_8760, bulk_loss, working_dir):
     timestamp = datetime.datetime.now()
 
+    # TODO Add to output file for review.
+    # calculate total losses from consumption in % and power (kW)
+    if pwts["Consumption Loss Value"].sum() != 0:
+        consumption_loss_percent = 100 * (pwts["Consumption Loss Value"].sum()/pwts["Gross Power"].sum())
+    else:
+        consumption_loss_percent = 0
+    consumption_loss = pwts["Consumption Loss Value"].sum()
+
+    # and derating in % and power
+    if pwts["Temperature Derating Loss Value (kW)"].sum() != 0:
+        derating_loss_percent = pwts["Temperature Derating Loss Value (kW)"].sum() / pwts["Gross Power"].sum()
+    else:
+        derating_loss_percent = 0
+    derating_loss = pwts["Temperature Derating Loss Value (kW)"].sum()
+
+    # and shutdown in % and power
+    if pwts["Temp Shutdown Loss"].sum() != 0:
+        shutdown_loss_percent = pwts["Temp Shutdown Loss"].sum() / pwts["Gross Power"].sum()
+    else:
+        shutdown_loss_percent = 0
+    shutdown_loss = pwts["Temp Shutdown Loss"].sum()
+
+    # and curtailment in % and power
+    if pwts["Curtailment Loss"].sum() != 0:
+        curtailment_loss_percent = 100 * pwts["Curtailment Loss"].sum() / pwts["Gross Power"].sum()
+    else:
+        curtailment_loss_percent = 0
+    curtailment_loss = pwts["Curtailment Loss"].sum()
+
+    # for review get total energy production pre-losses
+    sum_power = pwts["Gross Power"].sum()
+
+    # for review, get losses total power generated
+    losses_sum = pwts['Net Power'].sum()
+
     with open(os.path.join(working_dir,"exports", "review.txt"), "a") as f:
-        f.write("\n")
+        f.write("\n\n")
         f.write(f"\n{timestamp}\n")
         f.write("Power Time Series Run with Parameters:\n")
         f.write(f"8760 = {is_8760}\n")
-        f.write(f"Total Loss Applied = {total_loss}\n")
-        f.write(f"Gross Power (GWh) = {math.floor(sum_power/1000000)}\n")
-        f.write(f"Net Power (GWh) = {math.floor(losses_sum/1000000)}")
+        f.write(f"Total Bulk Loss Applied = {bulk_loss}\n")
+        f.write(f"Gross Power (GWh) = {round((sum_power/1000000), 3)}\n")
+        f.write(f"Net Power (GWh) = {round((losses_sum/1000000), 3)}\n")
+        f.write(f"Consumption Loss Factor = {round(100 - (consumption_loss_percent*100), 3)}\n")
+        # f.write(f"Consumption Loss Value (kW) = {consumption_loss)}")
+        f.write(f"Derating Loss Factor = {round(100 - (derating_loss_percent*100), 3)}\n")
+        # f.write(f"Derating Loss Value (kW) = {derating_loss)}")
+        f.write(f"Shutdown Loss Factor = {round(100 - (shutdown_loss_percent * 100), 3)}\n")
+        # f.write(f"Shutdown Loss Value (kW) = {shutdown_loss)}")
+        f.write(f"Grid Curtailment Loss Factor = {round(100 - (curtailment_loss_percent * 100), 3)}\n")
+        # f.write(f"Shutdown Loss Value (kW) = {curtailment_loss)}")
     return

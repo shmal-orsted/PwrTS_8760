@@ -14,7 +14,9 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
     windog_data["Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
     # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to determine power output
-    windog_data["Gross Power"] = windog_data.apply(lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"], windfarmer_sectors, startup_params["farm_size"]), axis=1)
+    windog_data["Gross Power"] = windog_data.apply(
+        lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"],
+                                  windfarmer_sectors, startup_params["farm_size"]), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
     #is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760

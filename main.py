@@ -4,9 +4,11 @@ Author: Shawn Malone, Clay Matheny, Meghan Mitchell
 1/6/2023
 
 Revised Version of Clay's Code removing labor intensive work and preprocessing of data files
+Adds tmy generation, scaling mean of momm to site wind speed, grid curtailment, temperature derating
 """
 import pandas as pd
-from functions import startup_parser, losses_parser, startup, windfarmer_process, power_time_series, losses_app, import_data, export
+from functions import startup_parser, losses_parser, startup, windfarmer_process, power_time_series, \
+    losses_app, import_data, export, scaling
 import os
 
 
@@ -30,14 +32,17 @@ def main():
     # processing data and making adjustments before pwts is made
     windfarmer_sectors = windfarmer_process.main(windfarmer_data)
 
+    # scaling the wind data to a input value, if applicable
+    windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
+
     # Making the power time series
     pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params)
 
     # Apply losses to the power time series
-    pwts, total_loss, sum_power, losses_sum = losses_app.main(pwts, losses, windog_data_headers, startup_params)
+    pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
     export.export_csv(pwts, working_dir, is_8760)
-    export.peer_review_print(is_8760, total_loss, sum_power, losses_sum, working_dir)
+    export.peer_review_print(pwts, is_8760, bulk_loss, working_dir)
 
     return
 
