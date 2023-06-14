@@ -16,7 +16,6 @@ def import_windog(windog_filepath, startup_params, working_dir):
         windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m-%d-%Y %H:%M")
 
         # add month and year values for analysis
-        # TODO set timestamp to index of dataframe
         windog_data = windog_data.set_index(["Timestamp"])
         windog_data["Month"] = windog_data.index
         windog_data["Month"] = windog_data["Month"].apply(lambda x: x.month)

@@ -14,23 +14,7 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     for index, value in losses_df.iterrows():
         bulk_loss = bulk_loss * float(value[0])
 
-    # # temperature derating function
-    # # temp derating definition - just 1000m altitude, example for testing before importing data
-    # power_values = []
-    # turbine_size = 3400
-    # turbine_number = 74
-    # for i in range(-30, 27): power_values.append((turbine_size * turbine_number))
-    # for y in range(27, 33): power_values.append(
-    #     (turbine_size * turbine_number) - ((turbine_size * turbine_number) / (33 - 27)) * (y - 27))
-    # for z in range(33, 50): power_values.append(0)
-    #
-    # derating_curve = pd.DataFrame(
-    #     {"Temp (C)": list(range(-30, 50, 1)),
-    #      "Power (kW)": power_values})
-
-    # TODO: Add a dictionary for losses and percentages of all advanced losses for out
-
-    #TODO apply temperature shutdown to the time series and gather the value of that loss first
+    #apply temperature shutdown to the time series and gather the value of that loss first
     pwts = temp_shutdown(pwts=pwts, low=startup_params["low_temp"], high=startup_params["high_temp"], headers=headers)
 
     # import derating curve from data file

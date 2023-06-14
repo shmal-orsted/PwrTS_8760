@@ -16,8 +16,8 @@ def main(windog_df, windog_headers, working_dir):
     # resample dataset to hourly
     windog_df = windog_df.resample("1H", on=windog_headers["timestamp"]).mean()
 
-    # TODO Add mean of mothly means of the input dataset to be returned to the review sheet. Then take the ratio of the tmy MoMM and the input MoMM to compare on the review sheet as well. If the ratio here is > 1% flag is as an error, print that in the console
-    #TODO: Mean of monthly means is a weighted average based on the number of days, will use that in verification but not in calculations
+    # todo Add mean of mothly means of the input dataset to be returned to the review sheet. Then take the ratio of the tmy MoMM and the input MoMM to compare on the review sheet as well. If the ratio here is > 1% flag is as an error, print that in the console
+    # Mean of monthly means is a weighted average based on the number of days, will use that in verification but not in calculations
 
     # Average all years and separate out months
     #Creating month and year columns

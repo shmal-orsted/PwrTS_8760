@@ -18,10 +18,10 @@ def main(windog_data, startup_params, headers):
     # use below function to determine the MoMM of the dataset
     momm = momm_calc(windographer_dataset=windog_data, headers=headers)
 
-    # TODO use momm from function and find scaling factor for dataset comparing to scaling_value in startup_params
+    # use momm from function and find scaling factor for dataset comparing to scaling_value in startup_params
     scale_to_apply = float(startup_params['scaling_value'])/momm
 
-    # TODO scale dataset to new windspeed
+    # scale dataset to new windspeed
     windog_data[headers['speed']] = windog_data[headers['speed']]*scale_to_apply
 
     return windog_data, momm

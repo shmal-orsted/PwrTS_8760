@@ -14,18 +14,22 @@ def export_csv(pwts, working_dir, is_8760):
 
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
-    # TODO: cut down columns exported to net and gross power
-    pwts["Gross Power (MWh)"] = pwts["Gross Power"]/1000
-    pwts["Net Power (MWh)"] = pwts["Net Power"] / 1000
+    pwts["Gross Power (MWh)"] = round(pwts["Gross Power"]/1000, 2)
+    pwts["Net Power (MWh)"] = round(pwts["Net Power"] / 1000, 2)
     pwts = pwts.drop(["Gross Power", "Net Power"], axis=1)
-    pwts.to_csv(path)
+
+    # dropping all the columns we don't want in the output file
+    pwts_output = pwts.drop(["Month", "Year", "Sector", "Temp Shutdown Loss", "Gross Power + Derating",
+               "Temperature Derating Loss Value (kW)", "Consumption Loss Value",
+               "Net Power + Curtailment Loss", "Curtailment Loss"], axis=1)
+    pwts_output.to_csv(path)
     return
 
 
 def peer_review_print(pwts, is_8760, bulk_loss, working_dir):
     timestamp = datetime.datetime.now()
 
-    # TODO Add to output file for review.
+    # TODO Add bulk losses to output file for review
     # calculate total losses from consumption in % and power (kW)
     if pwts["Consumption Loss Value"].sum() != 0:
         consumption_loss_percent = 100 * (pwts["Consumption Loss Value"].sum()/pwts["Gross Power"].sum())
