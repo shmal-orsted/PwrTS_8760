@@ -4,6 +4,24 @@ import datetime
 import math
 
 
+def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir):
+    """
+    Function to export the 12x24 outputs when the 8760 is run.
+    :param percent_twelvex24_df: df with percentage 12x24 from 12x24 function
+    :param twelvex24_df: df with net power 12x24 from 12x24 function
+    :return: output file with 12x24 and percentage 12x24
+    """
+    # working_dir = os.getcwd()
+    filename = f"12x24_percentage - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
+    path = os.path.join(working_dir, "exports", f"{filename}.csv")
+    percent_twelvex24_df.to_csv(path)
+
+    filename = f"12x24_netpower - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
+    path = os.path.join(working_dir, "exports", f"{filename}.csv")
+    twelvex24_df.to_csv(path)
+    return
+
+
 def export_csv(pwts, working_dir, is_8760):
     # Make path to export to, incorporating if it is an 8760
     cwd = os.getcwd()
@@ -59,9 +77,11 @@ def peer_review_print(pwts, is_8760, bulk_loss, working_dir):
     curtailment_loss = pwts["Curtailment Loss"].sum()
 
     # for review get total energy production pre-losses
+    # TODO make for an 8760 an annum, Power time series will be total
     sum_power = pwts["Gross Power"].sum()
 
     # for review, get losses total power generated
+    # TODO make for an 8760 an annum, Power time series will be total
     losses_sum = pwts['Net Power'].sum()
 
     with open(os.path.join(working_dir,"exports", "review.txt"), "a") as f:

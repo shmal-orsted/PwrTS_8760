@@ -8,7 +8,7 @@ Adds tmy generation, scaling mean of momm to site wind speed, grid curtailment, 
 """
 import pandas as pd
 from functions import startup_parser, losses_parser, startup, windfarmer_process, power_time_series, \
-    losses_app, import_data, export, scaling
+    losses_app, import_data, export, scaling, twelvex24
 import os
 
 
@@ -41,6 +41,13 @@ def main():
     # Apply losses to the power time series
     pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
+    # create 12x24 with 8760 time series
+    if is_8760 == True:
+        percent_twelvex24_df, twelvex24_df, pwts = twelvex24.main(pwts)
+        export.export_12x24(percent_twelvex24_df, twelvex24_df, working_dir)
+
+    # export data
+    # add pwts to exports
     export.export_csv(pwts, working_dir, is_8760)
     export.peer_review_print(pwts, is_8760, bulk_loss, working_dir)
 
