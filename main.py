@@ -33,7 +33,8 @@ def main():
     windfarmer_sectors = windfarmer_process.main(windfarmer_data)
 
     # scaling the wind data to a input value, if applicable
-    windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
+    if startup_params["run_8760"] is True:
+        windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
 
     # Making the power time series
     pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params)
@@ -42,14 +43,14 @@ def main():
     pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
     # create 12x24 with 8760 time series
-    if is_8760 == True:
+    if startup_params["run_8760"] is True:
         percent_twelvex24_df, twelvex24_df, pwts = twelvex24.main(pwts)
         export.export_12x24(percent_twelvex24_df, twelvex24_df, working_dir)
 
     # export data
     # add pwts to exports
-    export.export_csv(pwts, working_dir, is_8760)
-    export.peer_review_print(pwts, is_8760, bulk_loss, working_dir)
+    export.export_csv(pwts, working_dir, startup_params["run_8760"])
+    export.peer_review_print(pwts, startup_params["run_8760"], bulk_loss, working_dir)
 
     return
 
