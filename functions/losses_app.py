@@ -32,6 +32,7 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     pwts['Gross Power'] = pwts.apply(lambda x: x["Gross Power + Derating"][0], axis=1)
 
     # add consumption losses based on manufacturer specs
+    # TODO replace this with a param pulled from the derating curve document
     pwts["Consumption Loss Value"] = pwts[headers['temperature']].apply(lambda x: 21 if x <= 5 else 0)
 
     # Apply bulk losses to each timestep in the pwts
@@ -109,8 +110,12 @@ def temp_derating(power, temp, turbine_derating_curve):
         temp_round_up = 50
 
     # determine power value limit
-    lower_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
-    upper_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_up]["Power (kW)"].values[0]
+    try:
+        lower_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
+        upper_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_up]["Power (kW)"].values[0]
+    except IndexError:
+        if power == np.nan:
+            return np.nan
 
     if 30 < temp < 33:
         # interpolate for power limit
