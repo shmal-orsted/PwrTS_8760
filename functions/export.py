@@ -4,7 +4,7 @@ import datetime
 import math
 
 
-def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir):
+def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir, string):
     """
     Function to export the 12x24 outputs when the 8760 is run.
     :param percent_twelvex24_df: df with percentage 12x24 from 12x24 function
@@ -12,11 +12,11 @@ def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir):
     :return: output file with 12x24 and percentage 12x24
     """
     # working_dir = os.getcwd()
-    filename = f"12x24_percentage - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
+    filename = f"12x24_percentage_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     percent_twelvex24_df.to_csv(path)
 
-    filename = f"12x24_netpower - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
+    filename = f"12x24_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     twelvex24_df.to_csv(path)
     return

@@ -44,8 +44,9 @@ def main():
 
     # create 12x24 with 8760 time series
     if startup_params["run_8760"] is True:
-        percent_twelvex24_df, twelvex24_df, pwts = twelvex24.main(pwts)
-        export.export_12x24(percent_twelvex24_df, twelvex24_df, working_dir)
+        percent_twelvex24_df_net, twelvex24_df_net, percent_twelvex24_df_gross, twelvex24_df_gross, pwts = twelvex24.main(pwts)
+        export.export_12x24(percent_twelvex24_df_net, twelvex24_df_net, working_dir, "netpower")
+        export.export_12x24(percent_twelvex24_df_gross, twelvex24_df_gross, working_dir, "grosspower")
 
     # export data
     # add pwts to exports
