@@ -111,11 +111,14 @@ def temp_derating(power, temp, turbine_derating_curve):
 
     # determine power value limit
     try:
-        lower_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
-        upper_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_up]["Power (kW)"].values[0]
+        lower_value = \
+        turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
+        upper_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_up]["Power (kW)"].values[
+            0]
     except IndexError:
-        if power == np.nan:
-            return np.nan
+        derated_power = np.NaN
+        power_loss = np.NaN
+        return derated_power, power_loss
 
     if 30 < temp < 33:
         # interpolate for power limit
