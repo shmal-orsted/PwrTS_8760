@@ -56,6 +56,7 @@ def main():
     return
 
 
-pwts_finished = main()
+if __name__ == "__main__":
+    main()
 
 pass
