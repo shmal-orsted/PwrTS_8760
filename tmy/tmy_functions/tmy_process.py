@@ -60,12 +60,22 @@ def main(windog_df, windog_headers, working_dir):
     # for each month, select the representative month from the time series and add to tmy
     # use conditions to choose the month from the dataset to use in the TMY
     # using tmy_list loop through the tuples and get the corresponding month from the year listed and create a tmy
-    # TODO implement something for leap years, just cut off feb 29th if it's chosen
+    # implement something for leap years, just cut off feb 29th if it's chosen
     tmy_dataset = pd.DataFrame()
     for date_tuple in tmy_list:
-        tmy_dataset = pd.concat([tmy_dataset, (windog_df.loc[(windog_df["Month"] == date_tuple[0]) & (windog_df["Year"]
-                                                                                                      == date_tuple[
-                                                                                                          1])])])
+        # if for detecting leap year, cutting off at 28 days
+        if date_tuple[0] == 2:
+            if len(windog_df.loc[(windog_df["Month"] == date_tuple[0]) & (windog_df["Year"] == date_tuple[1])]) == 696:
+                leap_year_df = windog_df.loc[
+                    (windog_df["Month"] == date_tuple[0]) & (windog_df["Year"] == date_tuple[1])]
+                leap_year_df = leap_year_df.iloc[:-24]
+                tmy_dataset = pd.concat([tmy_dataset, leap_year_df])
+
+        else:
+            tmy_dataset = pd.concat(
+                [tmy_dataset, (windog_df.loc[(windog_df["Month"] == date_tuple[0]) & (windog_df["Year"]
+                                                                                      == date_tuple[
+                                                                                          1])])])
     # making the tmy_dataset into a functional one
     tmy_dataset = tmy_dataset.reset_index()
 
