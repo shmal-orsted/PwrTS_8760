@@ -70,6 +70,11 @@ def main(windog_df, windog_headers, working_dir):
                     (windog_df["Month"] == date_tuple[0]) & (windog_df["Year"] == date_tuple[1])]
                 leap_year_df = leap_year_df.iloc[:-24]
                 tmy_dataset = pd.concat([tmy_dataset, leap_year_df])
+            else:
+                tmy_dataset = pd.concat(
+                    [tmy_dataset, (windog_df.loc[(windog_df["Month"] == date_tuple[0]) & (windog_df["Year"]
+                                                                                          == date_tuple[
+                                                                                              1])])])
 
         else:
             tmy_dataset = pd.concat(
