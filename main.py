@@ -37,7 +37,7 @@ def main():
         windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
 
     # Making the power time series
-    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params)
+    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, startup_params)
 
     # Apply losses to the power time series
     pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)

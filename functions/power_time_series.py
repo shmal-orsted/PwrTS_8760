@@ -2,7 +2,7 @@ import math
 import pandas as pd
 import numpy as np
 
-def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
+def main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, startup_params):
     """
     Producing a power time series. Getting the wind speed and direction in the historical time series against
     windfarmer data and producing a time series for the entire dataset
@@ -15,8 +15,8 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
 
     # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to determine power output
     windog_data["Gross Power"] = windog_data.apply(
-        lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"],
-                                  windfarmer_sectors, startup_params["farm_size"]), axis=1)
+        lambda x: determine_power(x[windog_data_headers["speed"]], float(x["Sector"]),
+                                  windfarmer_data, startup_params["farm_size"]), axis=1)
 
     # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time series instead of a 8760 (could also choose by len eventually)
     #is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
@@ -25,23 +25,17 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
     if is_8760:
         pass
     else:
+        # TODO add warning if the rasmpling needs to be used here because it's in 10 min timesteps
         windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
     return windog_data, is_8760
 
 
 def decide_sector(value):
     # determine the wind sector the direction column is in
-
-    for x in range(0, 16):
-        if pd.isna(value):
-            return np.NaN
-        if 11.25 + x* 22.5 <= value <= 33.75 + x*22.5:
-                sector = x + 2
-                return sector
-        elif x == 1:
-            if 360 >= value >= 348.75 or 0 <= value <= 11.25:
-                sector = x + 2
-                return sector
+    # make the fpm file pull from 360 direction sectors
+    for x in range(0, 359):
+        sector = f"{round(value)}.0"
+        return str(sector)
 
 
 def determine_speed_bin(value):
@@ -63,8 +57,20 @@ def determine_power(speed, direction, windfarmer_sectors, farm_size):
         # get the upper and lower values of energy production
         if speed < 0:
             speed = 0
-        power_lower = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)]
-        power_upper = windfarmer_sectors[f"Sector {int(direction)}"][math.ceil(speed)]
+
+        # find the direction sector and value in the matrix for energy production
+        try:
+            power_lower = windfarmer_sectors[f"{direction}"][math.floor(speed)]
+            power_upper = windfarmer_sectors[f"{direction}"][math.ceil(speed)]
+        except KeyError:
+            if direction == 360.0:
+                direction = 0.0
+            else:
+                direction = direction + 0.5
+            power_lower = windfarmer_sectors[f"{direction}"][math.floor(speed)]
+            power_upper = windfarmer_sectors[f"{direction}"][math.ceil(speed)]
+
+
 
         if power_lower > power_upper:
             #derating scenario, when lower is higher than upper, switch them

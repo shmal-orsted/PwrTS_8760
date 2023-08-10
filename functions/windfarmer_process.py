@@ -5,7 +5,7 @@ def main(windfarmer_data):
     # This should be removed if we decide to use individual direction degrees for 8760s
     # split direction sectors into new columns and a new dataframe
     list_of_dfs = []
-
+    #TODO Add 360 degree version of fpm management
     for x in range(0, 16, 1):
 
         low = 348.75 + x*22.5
