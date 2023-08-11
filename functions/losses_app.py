@@ -14,14 +14,15 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     for index, value in losses_df.iterrows():
         bulk_loss = bulk_loss * float(value[0])
 
-    #apply temperature shutdown to the time series and gather the value of that loss first
+    # apply temperature shutdown to the time series and gather the value of that loss first
     pwts = temp_shutdown(pwts=pwts, low=startup_params["low_temp"], high=startup_params["high_temp"], headers=headers)
 
-    # import derating curve from data file
-    derating_curve = import_derating_curve(startup_params["turbine_model"], startup_params["derating_altitude"], working_dir)
+    # import derating curve and consumption loss from data file
+    derating_curve = import_derating_curve(startup_params["turbine_model"], startup_params["derating_altitude"],
+                                           working_dir)
 
-    #multiply derating curve by number of turbines to get farm derating curve
-    derating_curve["Power (kW)"] = derating_curve["Power (kW)"]*int(startup_params["num_turbines"])
+    # multiply derating curve by number of turbines to get farm derating curve
+    derating_curve["Power (kW)"] = derating_curve["Power (kW)"] * int(startup_params["num_turbines"])
 
     # derating loss will be added to time series here
     pwts['Gross Power + Derating'] = pwts.apply(
@@ -32,20 +33,22 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     pwts['Gross Power'] = pwts.apply(lambda x: x["Gross Power + Derating"][0], axis=1)
 
     # add consumption losses based on manufacturer specs
-    # TODO replace this with a param pulled from the derating curve document
-    pwts["Consumption Loss Value"] = pwts[headers['temperature']].apply(lambda x: 21 if x <= 5 else 0)
+    # dynamically apply consumption loss value based on the input from the derating curve file
+    pwts["Consumption Loss Value"] = pwts[headers['temperature']].apply(
+        lambda x: derating_curve["Consumption"][0] if x <= derating_curve["Consumption"][2] else 0)
 
     # Apply bulk losses to each timestep in the pwts
     # speed testing 9.01 ms ± 351 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
     # pwts['Net Power'] = pwts['Gross Power'].apply(lambda x: x * total_loss)
     # speed testing 128 µs ± 1.5 µs per loop (mean ± std. dev. of 7 runs, 10,000 loops each)
-    pwts['Net Power'] = pwts['Gross Power']*bulk_loss
+    pwts['Net Power'] = pwts['Gross Power'] * bulk_loss
 
     # Apply consumption loss to each timestep in the pwts
-    pwts['Net Power'] = pwts['Net Power']-pwts["Consumption Loss Value"]
+    pwts['Net Power'] = pwts['Net Power'] - pwts["Consumption Loss Value"]
 
     # Grid Curtailment - Applied last to the net pwts
-    pwts['Net Power + Curtailment Loss'] = pwts.apply(lambda x: grid_curtailment(x["Net Power"], float(startup_params["grid_curtailment_limit"])*1000), axis=1)
+    pwts['Net Power + Curtailment Loss'] = pwts.apply(
+        lambda x: grid_curtailment(x["Net Power"], float(startup_params["grid_curtailment_limit"]) * 1000), axis=1)
 
     # Split grid curtailment tuple
     pwts['Net Power'] = pwts.apply(lambda x: x["Net Power + Curtailment Loss"][0], axis=1)
@@ -69,7 +72,7 @@ def temp_shutdown(pwts, low, high, headers):
     """
 
     pwts["Temp Shutdown Loss"] = pwts.apply(lambda x:
-                                                    x["Gross Power"] if low > x[headers['temperature']] > high else 0, axis=1)
+                                            x["Gross Power"] if low > x[headers['temperature']] > high else 0, axis=1)
 
     return pwts
 
@@ -112,7 +115,7 @@ def temp_derating(power, temp, turbine_derating_curve):
     # determine power value limit
     try:
         lower_value = \
-        turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
+            turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_down]["Power (kW)"].values[0]
         upper_value = turbine_derating_curve[turbine_derating_curve["Temp (C)"] == temp_round_up]["Power (kW)"].values[
             0]
     except IndexError:
@@ -123,7 +126,7 @@ def temp_derating(power, temp, turbine_derating_curve):
     if 30 < temp < 33:
         # interpolate for power limit
         temp_diff = temp - temp_round_down
-        power_cap = lower_value - (temp_diff*(upper_value - lower_value))
+        power_cap = lower_value - (temp_diff * (upper_value - lower_value))
         if power_cap < power:
             derated_power = power_cap
             power_loss = power - power_cap
@@ -139,24 +142,22 @@ def temp_derating(power, temp, turbine_derating_curve):
 
 def import_derating_curve(turbine_model, altitude, working_dir):
     """
-    import derating curve from turbine data library and choose the appropriate derating curve based on the input elevation
-    inputs
-    turbine_model: input from the startup_params file - currently supported turbines (ge34)
+    import derating curve from turbine data library and choose the appropriate derating curve based on the input
+    elevation inputs turbine_model: input from the startup_params file - currently supported turbines (ge34)
     altitude: input from the startup_params file - must appear on the derating curve from the manufacturer. Check the
-    derating files for accepted altitudes per turbine
-    working_dir: working project directory, used in selecting the turbine derating curve filepath
-    outputs
-    derating_curve: the derating curve for the turbine and altitude selected in the params file
+    derating files for accepted altitudes per turbine working_dir: working project directory, used in selecting the
+    turbine derating curve filepath outputs derating_curve: the derating curve for the turbine and altitude selected
+    in the params file
     """
     # import data file
     filepath = os.path.join(working_dir, "derating_curves", f"{turbine_model}_derating_curve.csv")
     derating_curve_all_alts = pd.read_csv(filepath)
 
     # select appropriate data using altitude param
-    derating_curve = derating_curve_all_alts[["Temperature", f"Power ({altitude}m)"]]
+    derating_curve = derating_curve_all_alts[["Temperature", f"Power ({altitude}m)", "Consumption"]]
 
     # rename column headers
-    derating_curve = derating_curve.rename(columns = {"Temperature": "Temp (C)", f"Power ({altitude}m)": "Power (kW)"})
+    derating_curve = derating_curve.rename(columns={"Temperature": "Temp (C)", f"Power ({altitude}m)": "Power (kW)"})
 
     return derating_curve
 
