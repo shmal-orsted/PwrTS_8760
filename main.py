@@ -12,7 +12,7 @@ from functions import startup_parser, losses_parser, startup, windfarmer_process
 import os
 
 
-def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, run_8760, working_dir):
+def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, run_8760, working_dir, turbine_filepath):
     '''
     Starting with data imported and filepaths brought in
     '''
@@ -32,11 +32,12 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     #import startup parameters
     startup_params = startup_parser.main(working_dir, filepaths["startup"])
 
+    startup_params["turbine_model"] = turbine_filepath
+
     # use value from interface running 8760 or pwts
     startup_params["run_8760"] = run_8760
 
     # import windog, windfarmer and losses data
-    #if there is no txt file in the inputs folder default to the tmy branch of the code to make a tmy dataset
     windog_data, windog_data_headers = import_data.import_windog(filepaths["windog"], startup_params, working_dir)
 
     windfarmer_data = import_data.import_windfarmer(filepaths["windfarmer"])

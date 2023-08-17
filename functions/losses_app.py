@@ -18,8 +18,7 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     pwts = temp_shutdown(pwts=pwts, low=startup_params["low_temp"], high=startup_params["high_temp"], headers=headers)
 
     # import derating curve and consumption loss from data file
-    derating_curve = import_derating_curve(startup_params["turbine_model"], startup_params["derating_altitude"],
-                                           working_dir)
+    derating_curve = import_derating_curve(startup_params["turbine_model"], startup_params["derating_altitude"])
 
     # multiply derating curve by number of turbines to get farm derating curve
     derating_curve["Power (kW)"] = derating_curve["Power (kW)"] * int(startup_params["num_turbines"])
@@ -140,7 +139,7 @@ def temp_derating(power, temp, turbine_derating_curve):
     return derated_power, power_loss
 
 
-def import_derating_curve(turbine_model, altitude, working_dir):
+def import_derating_curve(turbine_model, altitude):
     """
     import derating curve from turbine data library and choose the appropriate derating curve based on the input
     elevation inputs turbine_model: input from the startup_params file - currently supported turbines (ge34)
@@ -150,8 +149,7 @@ def import_derating_curve(turbine_model, altitude, working_dir):
     in the params file
     """
     # import data file
-    filepath = os.path.join(working_dir, "derating_curves", f"{turbine_model}_derating_curve.csv")
-    derating_curve_all_alts = pd.read_csv(filepath)
+    derating_curve_all_alts = pd.read_csv(turbine_model)
 
     # select appropriate data using altitude param
     derating_curve = derating_curve_all_alts[["Temperature", f"Power ({altitude}m)", "Consumption"]]

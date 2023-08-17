@@ -68,12 +68,13 @@ class RunProgram(tk.Frame):
         txt_filepath_var = tk.StringVar(master=self, value="")
         losses_filepath_var = tk.StringVar(master=self, value="")
         startup_params_filepath_var = tk.StringVar(master=self, value="")
+        turbine_filepath_var = tk.StringVar(master=self, value="")
 
         # if the vars were run before, use the previous values
         config_object = ConfigParser()
         config_object.read("config.ini")
 
-        list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var]
+        list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var, turbine_filepath_var]
         count = 0
         for key in config_object["DEFAULTS"]:
             if len(config_object["DEFAULTS"][key]) != 0:
@@ -173,24 +174,48 @@ class RunProgram(tk.Frame):
                 label = tk.Label(self, textvariable=txt_filepath_var)
                 label.grid(row=3, column=1, padx=5, pady=5)
 
+        def select_file_turbine():
+            # this will update a global variable of fpm_filepath with a selected file
+            # this is not the right way to do this, but I can't figure out a better way for now
+            filetypes = (
+                ('text files', '*.csv'),
+                ('All files', '*.*')
+            )
+            cwd = os.getcwd()
+            turbine_filepath_var.set(fd.askopenfilename(
+                title='Open a turbine file',
+                initialdir=os.path.join(cwd, "derating_curves"),
+                filetypes=filetypes))
+
+            # add conditional label for if fpm_filepath has a value
+            if not len(turbine_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=turbine_filepath_var)
+                label.grid(row=4, column=1, padx=5, pady=5)
+
         def run_8760():
             # run 8760 command
-            if len(fpm_filepath_var.get()) != 0 and len(losses_filepath_var.get()) != 0 and \
-                    len(startup_params_filepath_var.get()) != 0 and len(txt_filepath_var.get()) != 0:
+            if len(fpm_filepath_var.get()) != 0 and \
+                    len(losses_filepath_var.get()) != 0 and \
+                    len(startup_params_filepath_var.get()) != 0 and \
+                    len(txt_filepath_var.get()) != 0 and \
+                    len(turbine_filepath_var.get()) != 0:
                 tk.messagebox.showinfo(title="Running", message="running successfully")
                 main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
-                          txt_filepath_var.get(), True, working_dir)
+                          txt_filepath_var.get(), True, working_dir, turbine_filepath_var.get())
                 tk.messagebox.showinfo(title="Program Complete", message="8760 run successfully")
             else:
                 tk.messagebox.showerror(title="Failed to Start Program", message="Missing File")
 
         def run_pwts():
             # run pwts command
-            if len(fpm_filepath_var.get()) != 0 and len(losses_filepath_var.get()) != 0 and \
-                    len(startup_params_filepath_var.get()) != 0 and len(txt_filepath_var.get()) != 0:
+            if len(fpm_filepath_var.get()) != 0 and \
+                    len(losses_filepath_var.get()) != 0 and \
+                    len(startup_params_filepath_var.get()) != 0 and \
+                    len(txt_filepath_var.get()) != 0 and \
+                    len(turbine_filepath_var.get()) != 0:
                 tk.messagebox.showinfo(title="Running", message="running successfully")
                 main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
-                          txt_filepath_var.get(), False, working_dir)
+                          txt_filepath_var.get(), False, working_dir, turbine_filepath_var.get())
                 tk.messagebox.showinfo(title="Program Complete", message="PwTS run successfully")
             else:
                 tk.messagebox.showerror(title="Failed to Start Program", message="Missing File")
@@ -211,13 +236,17 @@ class RunProgram(tk.Frame):
         select_file_txt = tk.Button(self, text="Select Windographer Data File", command=select_file_txt)
         select_file_txt.grid(row=3, column=0, padx=5, pady=5)
 
+        # turbine selector button
+        select_file_turbine = tk.Button(self, text="Select Turbine File", command=select_file_turbine)
+        select_file_turbine.grid(row=4, column=0, padx=5, pady=5)
+
         # run 8760 button
         run = tk.Button(self, text="Run 8760 Program!", command=run_8760)
-        run.grid(row=4, column=0,columnspan = 2, sticky = tk.W+tk.E, padx=5, pady=5)
+        run.grid(row=5, column=0,columnspan = 2, sticky = tk.W+tk.E, padx=5, pady=5)
 
         # run pwts button
         run = tk.Button(self, text="Run PwTS Program!", command=run_pwts)
-        run.grid(row=5, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5)
+        run.grid(row=6, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5)
 
         # trace the vars set here for use in the next run
         # fpm_filepath_var.trace("w", update_config)
