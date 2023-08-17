@@ -16,10 +16,10 @@ import os
 import pandas
 
 
-def main(working_dir):
+def main(windog_filepath, working_dir):
 
     # import .txt file in inputs
-    windog_data, windog_headers = import_windog.main(working_dir)
+    windog_data, windog_headers = import_windog.main(windog_filepath)
     #process data into tmy
     tmy_dataset = tmy_process.main(windog_data, windog_headers, working_dir)
 
