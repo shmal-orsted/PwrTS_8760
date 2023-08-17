@@ -55,6 +55,11 @@ def main(pwts):
     # making the tmy_dataset into a functional one matching formatting of rest of code
     pwts = pwts.reset_index()
 
+    # converting units and rounding
+    twelvex24_var_net = twelvex24_var_net.mul(0.000001).round(2)
+    twelvex24_var_gross = twelvex24_var_gross.mul(0.000001).round(2)
+
+
     return percent_twelvex24_net, twelvex24_var_net, percent_twelvex24_gross, twelvex24_var_gross, pwts
 
 if __name__ == "__main__":
