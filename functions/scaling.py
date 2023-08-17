@@ -5,9 +5,9 @@ import numpy as np
 
 def main(windog_data, startup_params, headers):
     """
-    Scaling wind speeds in the met data to a value given in the startup_params. The scaling will scale the mean of monthly
-    means values after calculating them then apply that scaling factor to the dataset, returning a scaled dataset to be
-    run in the main code afterwards.
+    Scaling wind speeds in the met data to a value given in the startup_params. The scaling will scale the mean of
+    monthly means values after calculating them then apply that scaling factor to the dataset, returning a scaled
+    dataset to be run in the main code afterwards.
     input
     windog_data: windographer dataset from the main code
     scaling_factor: the value to scale the time series to. Must be a float value
@@ -50,7 +50,6 @@ def momm_calc(windographer_dataset, headers):
     # momm value
     momm = monthly_means['speed*size'].sum()/monthly_means['num_timesteps'].sum()
 
-    windographer_dataset
     return momm
 
 

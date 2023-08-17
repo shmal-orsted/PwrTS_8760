@@ -1,8 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
-import os, pandas as pd
+import os
 from configparser import ConfigParser
 import main
 
@@ -10,12 +9,12 @@ import main
 
 working_dir = os.getcwd()
 
+
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(StartPage)
-
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -55,7 +54,8 @@ class PageTwo(tk.Frame):
 class RunProgram(tk.Frame):
     def __init__(self, master):
         """
-        Interace function, will include all the original stuff from the program but with a convienient interface for use and
+        Interace function, will include all the original stuff from the program but with a convenient interface for use
+        and
         interaction
         :return:
         """
@@ -74,7 +74,8 @@ class RunProgram(tk.Frame):
         config_object = ConfigParser()
         config_object.read("config.ini")
 
-        list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var, turbine_filepath_var]
+        list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var,
+                        turbine_filepath_var]
         count = 0
         for key in config_object["DEFAULTS"]:
             if len(config_object["DEFAULTS"][key]) != 0:
@@ -98,7 +99,6 @@ class RunProgram(tk.Frame):
         #     }
         #     with open('config.ini', 'w') as conf:
         #         config_object.write(conf)
-
 
         def select_file_fpm():
             # this will update a global variable of fpm_filepath with a selected file
@@ -136,7 +136,6 @@ class RunProgram(tk.Frame):
                 label = tk.Label(self, textvariable=losses_filepath_var)
                 label.grid(row=1, column=1, padx=5, pady=5)
 
-
         def select_file_startup_params():
             # this will update a global variable of fpm_filepath with a selected file
             # this is not the right way to do this, but I can't figure out a better way for now
@@ -154,7 +153,6 @@ class RunProgram(tk.Frame):
             if not len(startup_params_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=startup_params_filepath_var)
                 label.grid(row=2, column=1, padx=5, pady=5)
-
 
         def select_file_txt():
             # this will update a global variable of fpm_filepath with a selected file
@@ -229,7 +227,8 @@ class RunProgram(tk.Frame):
         select_file_losses.grid(row=1, column=0, padx=5, pady=5)
 
         # file selector for startup_params.ini file
-        select_file_startup_params = tk.Button(self, text="Select Startup Paramaters File", command=select_file_startup_params)
+        select_file_startup_params = tk.Button(self, text="Select Startup Paramaters File",
+                                               command=select_file_startup_params)
         select_file_startup_params.grid(row=2, column=0, padx=5, pady=5)
 
         # file selector for txt file
@@ -242,7 +241,7 @@ class RunProgram(tk.Frame):
 
         # run 8760 button
         run = tk.Button(self, text="Run 8760 Program!", command=run_8760)
-        run.grid(row=5, column=0,columnspan = 2, sticky = tk.W+tk.E, padx=5, pady=5)
+        run.grid(row=5, column=0, columnspan=2, sticky=tk.W+tk.E, padx=5, pady=5)
 
         # run pwts button
         run = tk.Button(self, text="Run PwTS Program!", command=run_pwts)

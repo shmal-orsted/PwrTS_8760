@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def main(pwts):
     """
     Sorting and averaging the time series by month and hour, then averaging, adding to a 12x24 output
@@ -9,13 +10,12 @@ def main(pwts):
     :return:
     twelvex24_var - 12x24 from the input 8760
     """
-    pwts
 
     # set index to the timestamp column
     pwts = pwts.set_index("Timestamp")
     # add hour column into dataframe
     pwts["Hour"] = pwts.index
-    pwts["Hour"] = pwts["Hour"].apply(lambda x: x.hour)
+    pwts["Hour"] = pwts["Hour"].apply(lambda z: z.hour)
     # sort by hour and month into a dataframe
     # this should be sum instead of mean? depending on what is being requested
     pwts_hm = pwts.groupby(['Month', "Hour"]).sum()
@@ -30,10 +30,6 @@ def main(pwts):
         series_to_add = pwts_hm["Net Power"][x*24:x*24+24]
         series_to_add = series_to_add.reset_index()["Net Power"]
         twelvex24_var_net[month_list[x]] = series_to_add
-
-    # Convert Dataframe of 12x24 to percentage of 8760
-    pwts_sum = pwts["Net Power"].sum()
-    percent_twelvex24_net = (twelvex24_var_net/pwts_sum)*100
 
     # Convert Dataframe of 12x24 to percentage of 8760
     pwts_sum = pwts["Net Power"].sum()
@@ -59,8 +55,8 @@ def main(pwts):
     twelvex24_var_net = twelvex24_var_net.mul(0.000001).round(2)
     twelvex24_var_gross = twelvex24_var_gross.mul(0.000001).round(2)
 
-
     return percent_twelvex24_net, twelvex24_var_net, percent_twelvex24_gross, twelvex24_var_gross, pwts
+
 
 if __name__ == "__main__":
     main()

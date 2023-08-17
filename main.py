@@ -13,9 +13,9 @@ import os
 
 
 def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, run_8760, working_dir, turbine_filepath):
-    '''
+    """
     Starting with data imported and filepaths brought in
-    '''
+    """
     # import input filepaths
     # working_dir = os.getcwd()
     # filepaths = startup.main(working_dir)
@@ -29,7 +29,7 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
 
     }
 
-    #import startup parameters
+    # import startup parameters
     startup_params = startup_parser.main(working_dir, filepaths["startup"])
 
     startup_params["turbine_model"] = turbine_filepath
@@ -58,7 +58,8 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
 
     # create 12x24 with 8760 time series
     if startup_params["run_8760"] is True:
-        percent_twelvex24_df_net, twelvex24_df_net, percent_twelvex24_df_gross, twelvex24_df_gross, pwts = twelvex24.main(pwts)
+        percent_twelvex24_df_net, twelvex24_df_net, percent_twelvex24_df_gross, twelvex24_df_gross, \
+            pwts = twelvex24.main(pwts)
         export.export_12x24(percent_twelvex24_df_net, twelvex24_df_net, working_dir, "netpower")
         export.export_12x24(percent_twelvex24_df_gross, twelvex24_df_gross, working_dir, "grosspower")
 
