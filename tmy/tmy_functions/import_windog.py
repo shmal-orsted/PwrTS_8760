@@ -1,19 +1,12 @@
 import pandas as pd
 import os
 
-def main(working_dir):
+def main(windog_filepath):
 
     windog_data_headers_dict = {}
 
-    # Search for txt file in inputs folder for importing
-    for file in os.listdir(os.path.join(working_dir, "inputs")):
-        if file.endswith(".txt"):
-            windog_tmy_filepath = os.path.join(working_dir, "inputs", file)
-        else:
-            pass
-
     # importing windog data
-    windog_data = pd.read_csv(windog_tmy_filepath, sep='\t')
+    windog_data = pd.read_csv(windog_filepath, sep='\t')
     # convert first column to datetime
     windog_data["Timestamp"] = pd.to_datetime(windog_data["Timestamp"], format="%m-%d-%Y %H:%M") #Changed this from the standard historical time series, need to establish a consistent formatted output
     # Upon import, set references to columns and remove hard coded names throughout code

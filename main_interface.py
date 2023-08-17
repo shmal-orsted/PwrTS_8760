@@ -3,15 +3,19 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 import os, pandas as pd
+from configparser import ConfigParser
+import main
 
+# TODO add startup_function for reading the previously selected options, if there were any
 
-fpm_filepath, txt_filepath, losses_filepath, startup_params_filepath = "", "", "", ""
+working_dir = os.getcwd()
 
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(StartPage)
+
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -56,12 +60,44 @@ class RunProgram(tk.Frame):
         :return:
         """
         tk.Frame.__init__(self, master)
-        # fpm_filepath = tk.StringVar()
-        # txt_filepath = tk.StringVar()
-        # startup_params_filepath = tk.StringVar()
-
         tk.Button(self, text="Return to start page",
                   command=lambda: master.switch_frame(StartPage)).grid(row=5, column=0, padx=5, pady=5)
+
+        # define our StringVar to get out of the function into our main analysis function
+        fpm_filepath_var = tk.StringVar(master=self, value="")
+        txt_filepath_var = tk.StringVar(master=self, value="")
+        losses_filepath_var = tk.StringVar(master=self, value="")
+        startup_params_filepath_var = tk.StringVar(master=self, value="")
+
+        # if the vars were run before, use the previous values
+        config_object = ConfigParser()
+        config_object.read("config.ini")
+
+        list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var]
+        count = 0
+        for key in config_object["DEFAULTS"]:
+            if len(config_object["DEFAULTS"][key]) != 0:
+                list_of_vars[count].set(config_object["DEFAULTS"][key])
+                count = count+1
+
+        # todo adding saved values for the interface, not complete
+        # def update_config(*args):
+        #     fpm_data = fpm_filepath_var.get() # reading file selection
+        #     txt_data = txt_filepath_var.get()
+        #     losses_data = losses_filepath_var.get()
+        #     startup_data = startup_params_filepath_var.get()
+        #
+        #     # each time the update_config command is fired, the config.txt will update
+        #     config_object = ConfigParser
+        #     config_object["DEFAULTS"] = {
+        #         "fpm" : fpm_data,
+        #         "txt" : txt_data,
+        #         "losses" : losses_data,
+        #         "startup_params" : startup_data
+        #     }
+        #     with open('config.ini', 'w') as conf:
+        #         config_object.write(conf)
+
 
         def select_file_fpm():
             # this will update a global variable of fpm_filepath with a selected file
@@ -71,22 +107,15 @@ class RunProgram(tk.Frame):
                 ('All files', '*.*')
             )
             cwd = os.getcwd()
-            global fpm_filepath
-            fpm_filepath = fd.askopenfilename(
+            fpm_filepath_var.set(fd.askopenfilename(
                 title='Open a file',
                 initialdir=os.path.join(cwd, "inputs"),
-                filetypes=filetypes)
+                filetypes=filetypes))
 
             # add conditional label for if fpm_filepath has a value
-            if not len(fpm_filepath) == 0:
-                var = tk.StringVar()
-                var.set(str(fpm_filepath))
-                label = tk.Label(self, textvariable=var)
+            if not len(fpm_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=fpm_filepath_var)
                 label.grid(row=0, column=1, padx=5, pady=5)
-
-
-            # import the fpm file and show as example in dataframe, for testing purpose
-            # windfarmer_df = pd.read_csv(fpm_filepath, sep="\t", header=9)
 
         def select_file_losses():
             # this will update a global variable of fpm_filepath with a selected file
@@ -96,17 +125,14 @@ class RunProgram(tk.Frame):
                 ('All files', '*.*')
             )
             cwd = os.getcwd()
-            global losses_filepath
-            losses_filepath = fd.askopenfilename(
+            losses_filepath_var.set(fd.askopenfilename(
                 title='Open a file',
                 initialdir=os.path.join(cwd, "inputs"),
-                filetypes=filetypes)
+                filetypes=filetypes))
 
             # add conditional label for if fpm_filepath has a value
-            if not len(losses_filepath) == 0:
-                var = tk.StringVar()
-                var.set(str(losses_filepath))
-                label = tk.Label(self, textvariable=var)
+            if not len(losses_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=losses_filepath_var)
                 label.grid(row=1, column=1, padx=5, pady=5)
 
 
@@ -118,17 +144,14 @@ class RunProgram(tk.Frame):
                 ('All files', '*.*')
             )
             cwd = os.getcwd()
-            global startup_params_filepath
-            startup_params_filepath = fd.askopenfilename(
+            startup_params_filepath_var.set(fd.askopenfilename(
                 title='Open a file',
                 initialdir=os.path.join(cwd, "inputs"),
-                filetypes=filetypes)
+                filetypes=filetypes))
 
             # add conditional label for if fpm_filepath has a value
-            if not len(startup_params_filepath) == 0:
-                var = tk.StringVar()
-                var.set(str(startup_params_filepath))
-                label = tk.Label(self, textvariable=var)
+            if not len(startup_params_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=startup_params_filepath_var)
                 label.grid(row=2, column=1, padx=5, pady=5)
 
 
@@ -140,55 +163,65 @@ class RunProgram(tk.Frame):
                 ('All files', '*.*')
             )
             cwd = os.getcwd()
-            global txt_filepath
-            txt_filepath = fd.askopenfilename(
+            txt_filepath_var.set(fd.askopenfilename(
                 title='Open a file',
                 initialdir=os.path.join(cwd, "inputs"),
-                filetypes=filetypes)
+                filetypes=filetypes))
 
             # add conditional label for if fpm_filepath has a value
-            if not len(txt_filepath) == 0:
-                var = tk.StringVar()
-                var.set(str(txt_filepath))
-                label = tk.Label(self, textvariable=var)
+            if not len(txt_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=txt_filepath_var)
                 label.grid(row=3, column=1, padx=5, pady=5)
 
-        def run_program():
-            # placeholder for run program command
-            if len(fpm_filepath) != 0 and len(losses_filepath) != 0 and len(startup_params_filepath) != 0 and len(
-                    txt_filepath) != 0:
-                tk.messagebox.showinfo(title="Running", message="ran successfully")
+        def run_8760():
+            # run 8760 command
+            if len(fpm_filepath_var.get()) != 0 and len(losses_filepath_var.get()) != 0 and \
+                    len(startup_params_filepath_var.get()) != 0 and len(txt_filepath_var.get()) != 0:
+                tk.messagebox.showinfo(title="Running", message="running successfully")
+                main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
+                          txt_filepath_var.get(), True, working_dir)
+                tk.messagebox.showinfo(title="Program Complete", message="8760 run successfully")
             else:
                 tk.messagebox.showerror(title="Failed to Start Program", message="Missing File")
 
-        # start of mainloop function (depreciated for class variable)
-        # self.title('Tkinter Open File Dialog')
-        # self.resizable(True, True)
-        # self.geometry('700x200')
-        # code to add widgets will go here
+        def run_pwts():
+            # run pwts command
+            if len(fpm_filepath_var.get()) != 0 and len(losses_filepath_var.get()) != 0 and \
+                    len(startup_params_filepath_var.get()) != 0 and len(txt_filepath_var.get()) != 0:
+                tk.messagebox.showinfo(title="Running", message="running successfully")
+                main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
+                          txt_filepath_var.get(), False, working_dir)
+                tk.messagebox.showinfo(title="Program Complete", message="PwTS run successfully")
+            else:
+                tk.messagebox.showerror(title="Failed to Start Program", message="Missing File")
+
         # file selector for fpm file
         select_file_fpm = tk.Button(self, text="Select FPM File", command=select_file_fpm)
-        # select_file_fpm.pack()
         select_file_fpm.grid(row=0, column=0, padx=5, pady=5)
 
         # file selector for losses.ini file
         select_file_losses = tk.Button(self, text="Select Losses File", command=select_file_losses)
-        # select_file_losses.pack()
         select_file_losses.grid(row=1, column=0, padx=5, pady=5)
 
         # file selector for startup_params.ini file
         select_file_startup_params = tk.Button(self, text="Select Startup Paramaters File", command=select_file_startup_params)
-        # select_file_params.pack()
         select_file_startup_params.grid(row=2, column=0, padx=5, pady=5)
 
         # file selector for txt file
         select_file_txt = tk.Button(self, text="Select Windographer Data File", command=select_file_txt)
-        # select_file_txt.pack()
         select_file_txt.grid(row=3, column=0, padx=5, pady=5)
 
-        # Check if all filepath vars are not empty, then add a run button
-        run = tk.Button(self, text="Run Program!", command=run_program)
-        run.grid(row=4, column=0, padx=5, pady=5)
+        # run 8760 button
+        run = tk.Button(self, text="Run 8760 Program!", command=run_8760)
+        run.grid(row=4, column=0,columnspan = 2, sticky = tk.W+tk.E, padx=5, pady=5)
+
+        # run pwts button
+        run = tk.Button(self, text="Run PwTS Program!", command=run_pwts)
+        run.grid(row=5, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5)
+
+        # trace the vars set here for use in the next run
+        # fpm_filepath_var.trace("w", update_config)
+
 
 if __name__ == "__main__":
     app = SampleApp()

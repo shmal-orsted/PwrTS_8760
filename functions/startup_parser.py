@@ -10,7 +10,7 @@ def main(working_dir, startup_params_file):
 
     parser = configparser.ConfigParser()
     os.chdir("..")
-    parser.read(os.path.join(working_dir, "inputs", "startup_params.ini"))
+    parser.read(startup_params_file)
     stored_vals = parser._sections
 
     startup_params = {}
@@ -20,10 +20,6 @@ def main(working_dir, startup_params_file):
     for key,value in stored_vals["PARAMS"].items():
         startup_params[key]= value
 
-    if startup_params["run_8760"] == "True":
-        startup_params["run_8760"] = True
-    else:
-        startup_params["run_8760"] = False
     startup_params["farm_size"] = float(startup_params["farm_size"])
     startup_params["high_temp"] = float(startup_params["high_temp"])
     startup_params["low_temp"] = float(startup_params["low_temp"])

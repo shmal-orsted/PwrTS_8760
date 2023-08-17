@@ -8,7 +8,7 @@ def import_windog(windog_filepath, startup_params, working_dir):
     # TMY will engage here if startup_params["run_8760"] = True
     if startup_params["run_8760"] is True:
         print("run_8760 is True, running TMY and 8760 process")
-        windog_data, windog_data_headers = tmy_main.main(working_dir)
+        windog_data, windog_data_headers = tmy_main.main(windog_filepath, working_dir)
     else:
         # importing windog data
         windog_data = pd.read_csv(windog_filepath, sep='\t')
