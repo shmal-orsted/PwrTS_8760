@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
+def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params, input_p50):
     """
     Producing a power time series. Getting the wind speed and direction in the historical time series against
     windfarmer data and producing a time series for the entire dataset
@@ -11,25 +11,59 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params):
     Uses interpolation between the floor and ceil of speed bins for a gross power value from the power matrix
     :return: Power Time Series gross power on inputted historical time series
     """
+
     # determine sector to use for each row
     windog_data["Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
-    # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to
-    # determine power output
-    windog_data["Gross Power"] = windog_data.apply(
-        lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"],
-                                  windfarmer_sectors, startup_params["farm_size"]), axis=1)
-
-    # Bonus Feature, if there are any NaN's in the dataset return a value indicating this is a historical power time
-    # series instead of a 8760 (could also choose by len eventually)
-    # is_8760 = not windog_data[windog_data_headers["direction"]].isna().any() and len(windog_data.index) == 8760
     is_8760 = startup_params["run_8760"]
     # Don't include this line if running 8760
     if is_8760:
         pass
     else:
         windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
-    return windog_data, is_8760
+
+    # making the power time series scale to an input p50 value using a goal seek function
+    scaled_pwts = goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params)
+
+    return scaled_pwts, is_8760
+
+
+def goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params):
+    """
+    Goalseek function to scale p50 value to an inputted p50
+    :param windog_data: a historical time series of wind data, filled or not filled, depending on 8760 status
+    :param windog_data_headers: headers taken from the data file
+    :param input_p50: input_p50 value given by the startup_params (to be replaced with input in interface) in GWh
+    :param windfarmer_sectors: sectors from the fpm file provided from the interface
+    :param startup_params: startup_params.ini provide these
+    :return: scaled_pwts: scaled to the input p50 using the determine power function below
+    """
+    # TODO add progress bar for this into interface window using the scaling adjustment 100- value
+    # changing df name for clarity
+    # run use normal pwts code again to get a pwts
+    # repeat while the p50 sum does not agree with the inputted p50 value
+    scaling_adjustment = 0.5
+    while abs(1 - scaling_adjustment) > 0.01:
+        # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to
+        # determine power output
+        # use the normal power time series function to get the pwts
+        windog_data["Gross Power"] = windog_data.apply(
+            lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"],
+                                      windfarmer_sectors, startup_params["farm_size"]), axis=1)
+        # compare p50 value to the inputted value and find difference
+        # pwts p50 in GWh
+        # get a p50 value (sum)
+        pwts_p50 = windog_data["Gross Power"].sum()*0.000001
+        # compare the p50 value we get out to the inputted p50
+        scaling_adjustment = float(input_p50)/pwts_p50
+
+        # scale the values in the wind speed column of the dataset to the p50
+        windog_data[windog_data_headers["speed"]] = windog_data[windog_data_headers["speed"]].mul(scaling_adjustment)
+        # need to get a close enough value
+
+    scaled_pwts = windog_data
+
+    return scaled_pwts
 
 
 def decide_sector(value):

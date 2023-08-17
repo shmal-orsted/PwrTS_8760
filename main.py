@@ -26,12 +26,10 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
         "losses": losses_filepath,
         "startup": startup_params_filepath,
         "windog": txt_filepath
-
     }
 
     # import startup parameters
     startup_params = startup_parser.main(working_dir, filepaths["startup"])
-
     startup_params["turbine_model"] = turbine_filepath
 
     # use value from interface running 8760 or pwts
@@ -39,19 +37,19 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
 
     # import windog, windfarmer and losses data
     windog_data, windog_data_headers = import_data.import_windog(filepaths["windog"], startup_params, working_dir)
-
     windfarmer_data = import_data.import_windfarmer(filepaths["windfarmer"])
     losses = losses_parser.main(filepaths["losses"])
 
     # processing data and making adjustments before pwts is made
     windfarmer_sectors = windfarmer_process.main(windfarmer_data)
 
-    # scaling the wind data to a input value, if applicable
+    # scaling the wind data to an input value, if applicable
     if startup_params["run_8760"] is True:
         windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
 
     # Making the power time series
-    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params)
+    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params,
+                                           startup_params["scaling_p50_value"])
 
     # Apply losses to the power time series
     pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
