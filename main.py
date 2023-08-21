@@ -57,10 +57,10 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     # create 12x24 with 8760 time series
     if startup_params["run_8760"] is True:
         percent_twelvex24_df_net, twelvex24_df_net, percent_twelvex24_df_gross, twelvex24_df_gross, \
-            pwts = twelvex24.main(pwts)
+             percent_twelvex24_speed, twelvex24_var_speed, pwts = twelvex24.main(pwts, windog_data_headers["speed"])
         export.export_12x24(percent_twelvex24_df_net, twelvex24_df_net, working_dir, "netpower")
         export.export_12x24(percent_twelvex24_df_gross, twelvex24_df_gross, working_dir, "grosspower")
-
+        export.export_12x24(percent_twelvex24_speed, twelvex24_var_speed, working_dir, "speed")
     # export data
     # add pwts to exports
     export.export_csv(pwts, working_dir, startup_params["run_8760"])
