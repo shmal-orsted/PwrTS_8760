@@ -63,42 +63,79 @@ class RunProgram(tk.Frame):
         tk.Button(self, text="Return to start page",
                   command=lambda: master.switch_frame(StartPage)).grid(row=5, column=0, padx=5, pady=5)
 
-        # define our StringVar to get out of the function into our main analysis function
-        fpm_filepath_var = tk.StringVar(master=self, value="")
-        txt_filepath_var = tk.StringVar(master=self, value="")
-        losses_filepath_var = tk.StringVar(master=self, value="")
-        startup_params_filepath_var = tk.StringVar(master=self, value="")
-        turbine_filepath_var = tk.StringVar(master=self, value="")
-
         # if the vars were run before, use the previous values
         config_object = ConfigParser()
         config_object.read("config.ini")
 
+        # define our StringVar to get out of the function into our main analysis function
+        if config_object["DEFAULTS"]["fpm"] != "":
+            fpm_filepath_var = tk.StringVar(master=self, value=config_object["DEFAULTS"]["fpm"])
+            # add conditional label for if fpm_filepath has a value
+            if not len(fpm_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=fpm_filepath_var)
+                label.grid(row=0, column=1, padx=5, pady=5)
+        else:
+            fpm_filepath_var = tk.StringVar(master=self, value="")
+
+        if config_object["DEFAULTS"]["txt"] != "":
+            txt_filepath_var = tk.StringVar(master=self, value=config_object["DEFAULTS"]["txt"])
+            # add conditional label for if fpm_filepath has a value
+            if not len(txt_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=txt_filepath_var)
+                label.grid(row=3, column=1, padx=5, pady=5)
+        else:
+            txt_filepath_var = tk.StringVar(master=self, value="")
+
+        if config_object["DEFAULTS"]["losses"] != "":
+            losses_filepath_var = tk.StringVar(master=self, value=config_object["DEFAULTS"]["losses"])
+            # add conditional label for if fpm_filepath has a value
+            if not len(losses_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=losses_filepath_var)
+                label.grid(row=1, column=1, padx=5, pady=5)
+        else:
+            losses_filepath_var = tk.StringVar(master=self, value="")
+
+        if config_object["DEFAULTS"]["fpm"] != "":
+            startup_params_filepath_var = tk.StringVar(master=self, value=config_object["DEFAULTS"]["startup_params"])
+            # add conditional label for if fpm_filepath has a value
+            if not len(startup_params_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=startup_params_filepath_var)
+                label.grid(row=2, column=1, padx=5, pady=5)
+        else:
+            startup_params_filepath_var = tk.StringVar(master=self, value="")
+
+        if config_object["DEFAULTS"]["turbine"] != "":
+            turbine_filepath_var = tk.StringVar(master=self, value=config_object["DEFAULTS"]["turbine"])
+            # add conditional label for if fpm_filepath has a value
+            if not len(turbine_filepath_var.get()) == 0:
+                label = tk.Label(self, textvariable=turbine_filepath_var)
+                label.grid(row=4, column=1, padx=5, pady=5)
+
+        else:
+            turbine_filepath_var = tk.StringVar(master=self, value="")
+
         list_of_vars = [fpm_filepath_var, txt_filepath_var, losses_filepath_var, startup_params_filepath_var,
                         turbine_filepath_var]
-        count = 0
-        for key in config_object["DEFAULTS"]:
-            if len(config_object["DEFAULTS"][key]) != 0:
-                list_of_vars[count].set(config_object["DEFAULTS"][key])
-                count = count+1
 
         # todo adding saved values for the interface, not complete
-        # def update_config(*args):
-        #     fpm_data = fpm_filepath_var.get() # reading file selection
-        #     txt_data = txt_filepath_var.get()
-        #     losses_data = losses_filepath_var.get()
-        #     startup_data = startup_params_filepath_var.get()
-        #
-        #     # each time the update_config command is fired, the config.txt will update
-        #     config_object = ConfigParser
-        #     config_object["DEFAULTS"] = {
-        #         "fpm" : fpm_data,
-        #         "txt" : txt_data,
-        #         "losses" : losses_data,
-        #         "startup_params" : startup_data
-        #     }
-        #     with open('config.ini', 'w') as conf:
-        #         config_object.write(conf)
+        def update_config(*args):
+            fpm_data = fpm_filepath_var.get() # reading file selection
+            txt_data = txt_filepath_var.get()
+            losses_data = losses_filepath_var.get()
+            startup_data = startup_params_filepath_var.get()
+            turbine_data = turbine_filepath_var.get()
+
+            # each time the update_config command is fired, the config.txt will update
+            config_object = ConfigParser()
+            config_object["DEFAULTS"] = {
+                "fpm": fpm_data,
+                "txt": txt_data,
+                "losses": losses_data,
+                "startup_params": startup_data,
+                "turbine": turbine_data
+            }
+            with open('config.ini', 'w') as conf:
+                config_object.write(conf)
 
         def select_file_fpm():
             # this will update a global variable of fpm_filepath with a selected file
@@ -198,6 +235,7 @@ class RunProgram(tk.Frame):
                     len(txt_filepath_var.get()) != 0 and \
                     len(turbine_filepath_var.get()) != 0:
                 tk.messagebox.showinfo(title="Running", message="running successfully")
+                update_config()
                 main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
                           txt_filepath_var.get(), True, working_dir, turbine_filepath_var.get())
                 tk.messagebox.showinfo(title="Program Complete", message="8760 run successfully")
@@ -212,6 +250,7 @@ class RunProgram(tk.Frame):
                     len(txt_filepath_var.get()) != 0 and \
                     len(turbine_filepath_var.get()) != 0:
                 tk.messagebox.showinfo(title="Running", message="running successfully")
+                update_config()
                 main.main(fpm_filepath_var.get(), losses_filepath_var.get(), startup_params_filepath_var.get(),
                           txt_filepath_var.get(), False, working_dir, turbine_filepath_var.get())
                 tk.messagebox.showinfo(title="Program Complete", message="PwTS run successfully")
