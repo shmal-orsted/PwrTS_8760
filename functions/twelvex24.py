@@ -69,6 +69,9 @@ def main(pwts, speed_column_header):
     twelvex24_var_gross = twelvex24_var_gross.mul(0.000001).round(2)
     twelvex24_var_speed = twelvex24_var_speed.round(2)
 
+    # todo make 12x1 of each of these as well
+
+
     return percent_twelvex24_net, twelvex24_var_net, percent_twelvex24_gross, twelvex24_var_gross, percent_twelvex24_speed, twelvex24_var_speed, pwts
 
 
