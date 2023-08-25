@@ -22,13 +22,13 @@ def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir, string):
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     twelvex24_df.to_csv(path)
 
-    # todo 12x1 percentage generation and export
+    # 12x1 percentage generation and export
     percent_twelvex1 = percent_twelvex24_df.sum(axis=0)
     filename = f"12x1_percentage_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     percent_twelvex1.to_csv(path)
 
-    # todo 12x1 generation and export
+    # 12x1 generation and export
     twelvex1 = twelvex24_df.sum(axis=0)
     filename = f"12x1_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
