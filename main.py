@@ -48,10 +48,11 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
         windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
 
     # Making the power time series
-    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windog_data, windog_data_headers, startup_params,
+    pwts, is_8760 = power_time_series.main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, startup_params,
                                            startup_params["scaling_p50_value"])
 
     # Apply losses to the power time series
+    # todo only on 8760 false are losses applied
     pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
     # create 12x24 with 8760 time series

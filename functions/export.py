@@ -12,10 +12,12 @@ def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir, string):
     :return: output file with 12x24 and percentage 12x24
     """
     # working_dir = os.getcwd()
+    percent_twelvex24_df = percent_twelvex24_df.round(2)
     filename = f"12x24_percentage_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     percent_twelvex24_df.to_csv(path)
 
+    twelvex24_df = twelvex24_df.round(2)
     filename = f"12x24_{string} - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     twelvex24_df.to_csv(path)
@@ -36,10 +38,14 @@ def export_csv(pwts, working_dir, is_8760):
     pwts["Net Power (MWh)"] = round(pwts["Net Power"] / 1000, 2)
     pwts = pwts.drop(["Gross Power", "Net Power"], axis=1)
 
+
+    # round cosmetic columns
+    pwts = pwts.round(2)
+
     # dropping all the columns we don't want in the output file
-    pwts_output = pwts.drop(["Month", "Year", "Sector", "Temp Shutdown Loss", "Gross Power + Derating",
-               "Temperature Derating Loss Value (kW)", "Consumption Loss Value",
-               "Net Power + Curtailment Loss", "Curtailment Loss"], axis=1)
+    pwts_output = pwts.drop(["Month", "Year", "Temp Shutdown Loss", "Gross Power + Derating",
+                             "Temperature Derating Loss Value (kW)", "Consumption Loss Value",
+                             "Net Power + Curtailment Loss", "Curtailment Loss"], axis=1)
     pwts_output.to_csv(path)
     return
 

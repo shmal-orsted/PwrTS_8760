@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params, input_p50):
+def main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, startup_params, input_p50):
     """
     Producing a power time series. Getting the wind speed and direction in the historical time series against
     windfarmer data and producing a time series for the entire dataset
@@ -11,24 +11,32 @@ def main(windfarmer_sectors, windog_data, windog_data_headers, startup_params, i
     Uses interpolation between the floor and ceil of speed bins for a gross power value from the power matrix
     :return: Power Time Series gross power on inputted historical time series
     """
-
+    # todo make sure the goal seek isn't run by the power time series
     # determine sector to use for each row
     windog_data["Sector"] = windog_data[windog_data_headers["direction"]].apply(lambda x: decide_sector(x))
 
     is_8760 = startup_params["run_8760"]
     # Don't include this line if running 8760
     if is_8760:
+        scaled_pwts = goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params)
         pass
     else:
+        # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to
+        # determine power output
+        # use the normal power time series function to get the pwts
+        windog_data["Gross Power"] = windog_data.apply(
+            lambda x: determine_power(x[windog_data_headers["speed"]], float(x["Sector"]), windfarmer_data,
+                                      startup_params["farm_size"]), axis=1)
         windog_data = windog_data.resample("1H", on=windog_data_headers["timestamp"]).mean()
+        scaled_pwts = windog_data
 
     # making the power time series scale to an input p50 value using a goal seek function
-    scaled_pwts = goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params)
+    # scaled_pwts = goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params)
 
     return scaled_pwts, is_8760
 
 
-def goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params):
+def goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params):
     """
     Goalseek function to scale p50 value to an inputted p50
     :param windog_data: a historical time series of wind data, filled or not filled, depending on 8760 status
@@ -48,8 +56,8 @@ def goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, st
         # determine power output
         # use the normal power time series function to get the pwts
         windog_data["Gross Power"] = windog_data.apply(
-            lambda x: determine_power(x[windog_data_headers["speed"]], x["Sector"],
-                                      windfarmer_sectors, startup_params["farm_size"]), axis=1)
+            lambda x: determine_power(x[windog_data_headers["speed"]], float(x["Sector"]),
+                                      windfarmer_data, startup_params["farm_size"]), axis=1)
         # compare p50 value to the inputted value and find difference
         # pwts p50 in GWh
         # get a p50 value (sum)
@@ -69,16 +77,10 @@ def goalseek(windog_data, windog_data_headers, input_p50, windfarmer_sectors, st
 def decide_sector(value):
     # determine the wind sector the direction column is in
 
-    for x in range(0, 16):
-        if pd.isna(value):
-            return np.NaN
-        if 11.25 + x * 22.5 <= value <= 33.75 + x * 22.5:
-            sector = x + 2
-            return sector
-        elif x == 1:
-            if 360 >= value >= 348.75 or 0 <= value <= 11.25:
-                sector = x + 2
-                return sector
+    # make the fpm file pull from 360 direction sectors
+    for x in range(0, 359):
+        sector = f"{round(value)}.0"
+        return str(sector)
 
 
 def determine_speed_bin(value):
@@ -99,8 +101,18 @@ def determine_power(speed, direction, windfarmer_sectors, farm_size):
         # get the upper and lower values of energy production
         if speed < 0:
             speed = 0
-        power_lower = windfarmer_sectors[f"Sector {int(direction)}"][math.floor(speed)]
-        power_upper = windfarmer_sectors[f"Sector {int(direction)}"][math.ceil(speed)]
+
+        # find the direction sector and value in the matrix for energy production
+        try:
+            power_lower = windfarmer_sectors[f"{direction}"][math.floor(speed)]
+            power_upper = windfarmer_sectors[f"{direction}"][math.ceil(speed)]
+        except KeyError:
+            if direction == 360.0:
+                direction = 0.0
+            else:
+                direction = direction + 0.5
+            power_lower = windfarmer_sectors[f"{direction}"][math.floor(speed)]
+            power_upper = windfarmer_sectors[f"{direction}"][math.ceil(speed)]
 
         if power_lower > power_upper:
             # derating scenario, when lower is higher than upper, switch them

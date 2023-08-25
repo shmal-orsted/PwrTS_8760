@@ -29,10 +29,10 @@ class StartPage(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self, text="This is the start page").pack(side="top", fill="x", pady=10)
-        tk.Button(self, text="Open run program",
-                  command=lambda: master.switch_frame(RunProgram)).pack()
-        tk.Button(self, text="Open page two",
-                  command=lambda: master.switch_frame(PageTwo)).pack()
+        tk.Button(self, text="Open 8760/PwTS program",
+                  command=lambda: master.switch_frame(RunProgram)).pack(padx=5, pady=5)
+        tk.Button(self, text="Instructions",
+                  command=lambda: master.switch_frame(PageTwo)).pack(padx=5, pady=5)
 
 
 class PageOne(tk.Frame):
@@ -40,15 +40,15 @@ class PageOne(tk.Frame):
         tk.Frame.__init__(self, master)
         tk.Label(self, text="This is page one").pack(side="top", fill="x", pady=10)
         tk.Button(self, text="Return to start page",
-                  command=lambda: master.switch_frame(StartPage)).pack()
+                  command=lambda: master.switch_frame(StartPage)).grid(row=1, column=0, padx=5, pady=5)
 
 
 class PageTwo(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
-        tk.Label(self, text="This is page two").pack(side="top", fill="x", pady=10)
+        tk.Label(self, text="This will be instructions! Not Ready Yet").pack(side="top", fill="x", pady=10)
         tk.Button(self, text="Return to start page",
-                  command=lambda: master.switch_frame(StartPage)).pack()
+                  command=lambda: master.switch_frame(StartPage)).grid(row=1, column=0, padx=5, pady=5)
 
 
 class RunProgram(tk.Frame):
@@ -61,7 +61,7 @@ class RunProgram(tk.Frame):
         """
         tk.Frame.__init__(self, master)
         tk.Button(self, text="Return to start page",
-                  command=lambda: master.switch_frame(StartPage)).grid(row=5, column=0, padx=5, pady=5)
+                  command=lambda: master.switch_frame(StartPage)).grid(row=7, column=0, padx=5, pady=5, sticky="WE", columnspan=2)
 
         # if the vars were run before, use the previous values
         config_object = ConfigParser()
@@ -73,7 +73,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(fpm_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=fpm_filepath_var)
-                label.grid(row=0, column=1, padx=5, pady=5)
+                label.grid(row=0, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
         else:
             fpm_filepath_var = tk.StringVar(master=self, value="")
 
@@ -82,7 +82,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(txt_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=txt_filepath_var)
-                label.grid(row=3, column=1, padx=5, pady=5)
+                label.grid(row=3, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
         else:
             txt_filepath_var = tk.StringVar(master=self, value="")
 
@@ -91,7 +91,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(losses_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=losses_filepath_var)
-                label.grid(row=1, column=1, padx=5, pady=5)
+                label.grid(row=1, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
         else:
             losses_filepath_var = tk.StringVar(master=self, value="")
 
@@ -100,7 +100,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(startup_params_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=startup_params_filepath_var)
-                label.grid(row=2, column=1, padx=5, pady=5)
+                label.grid(row=2, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
         else:
             startup_params_filepath_var = tk.StringVar(master=self, value="")
 
@@ -109,7 +109,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(turbine_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=turbine_filepath_var)
-                label.grid(row=4, column=1, padx=5, pady=5)
+                label.grid(row=4, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         else:
             turbine_filepath_var = tk.StringVar(master=self, value="")
@@ -153,7 +153,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(fpm_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=fpm_filepath_var)
-                label.grid(row=0, column=1, padx=5, pady=5)
+                label.grid(row=0, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         def select_file_losses():
             # this will update a global variable of fpm_filepath with a selected file
@@ -171,7 +171,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(losses_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=losses_filepath_var)
-                label.grid(row=1, column=1, padx=5, pady=5)
+                label.grid(row=1, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         def select_file_startup_params():
             # this will update a global variable of fpm_filepath with a selected file
@@ -189,7 +189,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(startup_params_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=startup_params_filepath_var)
-                label.grid(row=2, column=1, padx=5, pady=5)
+                label.grid(row=2, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         def select_file_txt():
             # this will update a global variable of fpm_filepath with a selected file
@@ -207,7 +207,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(txt_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=txt_filepath_var)
-                label.grid(row=3, column=1, padx=5, pady=5)
+                label.grid(row=3, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         def select_file_turbine():
             # this will update a global variable of fpm_filepath with a selected file
@@ -225,7 +225,7 @@ class RunProgram(tk.Frame):
             # add conditional label for if fpm_filepath has a value
             if not len(turbine_filepath_var.get()) == 0:
                 label = tk.Label(self, textvariable=turbine_filepath_var)
-                label.grid(row=4, column=1, padx=5, pady=5)
+                label.grid(row=4, column=1, padx=5, pady=5, sticky="WE", columnspan=1)
 
         def run_8760():
             # run 8760 command
@@ -259,24 +259,24 @@ class RunProgram(tk.Frame):
 
         # file selector for fpm file
         select_file_fpm = tk.Button(self, text="Select FPM File", command=select_file_fpm)
-        select_file_fpm.grid(row=0, column=0, padx=5, pady=5)
+        select_file_fpm.grid(row=0, column=0, padx=5, pady=5, sticky="WE", columnspan=1)
 
         # file selector for losses.ini file
         select_file_losses = tk.Button(self, text="Select Losses File", command=select_file_losses)
-        select_file_losses.grid(row=1, column=0, padx=5, pady=5)
+        select_file_losses.grid(row=1, column=0, padx=5, pady=5, sticky="WE", columnspan=1)
 
         # file selector for startup_params.ini file
         select_file_startup_params = tk.Button(self, text="Select Startup Paramaters File",
                                                command=select_file_startup_params)
-        select_file_startup_params.grid(row=2, column=0, padx=5, pady=5)
+        select_file_startup_params.grid(row=2, column=0, padx=5, pady=5, sticky="WE", columnspan=1)
 
         # file selector for txt file
         select_file_txt = tk.Button(self, text="Select Windographer Data File", command=select_file_txt)
-        select_file_txt.grid(row=3, column=0, padx=5, pady=5)
+        select_file_txt.grid(row=3, column=0, padx=5, pady=5, sticky="WE", columnspan=1)
 
         # turbine selector button
         select_file_turbine = tk.Button(self, text="Select Turbine File", command=select_file_turbine)
-        select_file_turbine.grid(row=4, column=0, padx=5, pady=5)
+        select_file_turbine.grid(row=4, column=0, padx=5, pady=5, sticky="WE", columnspan=1)
 
         # run 8760 button
         run = tk.Button(self, text="Run 8760 Program!", command=run_8760)

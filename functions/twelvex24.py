@@ -59,7 +59,7 @@ def main(pwts, speed_column_header):
 
     # make 12x24 speed into percentage one
     pwts_sum = pwts[speed_column_header].sum()
-    percent_twelvex24_speed = (twelvex24_var_speed / pwts_sum) * 100
+    percent_twelvex24_speed = (twelvex24_var_speed / pwts_sum) * 10000
 
     # making the tmy_dataset into a functional one matching formatting of rest of code
     pwts = pwts.reset_index()
