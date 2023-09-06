@@ -63,7 +63,7 @@ def goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windf
         # get a p50 value (sum)
         pwts_p50 = windog_data["Gross Power"].sum()*0.000001
         # compare the p50 value we get out to the inputted p50
-        scaling_adjustment = float(input_p50)/pwts_p50
+        scaling_adjustment = 1 - (1 - (float(input_p50)/pwts_p50))/2
 
         # scale the values in the wind speed column of the dataset to the p50
         windog_data[windog_data_headers["speed"]] = windog_data[windog_data_headers["speed"]].mul(scaling_adjustment)
