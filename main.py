@@ -54,9 +54,9 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     # Apply losses to the power time series
     # todo only on 8760 false are losses applied
     if startup_params["run_8760"] is True:
-        pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
-    else:
         bulk_loss = 0.0
+    else:
+        pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
     # create 12x24 with 8760 time series
     if startup_params["run_8760"] is True:
