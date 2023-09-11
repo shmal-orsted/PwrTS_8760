@@ -17,6 +17,14 @@ def main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, 
 
     is_8760 = startup_params["run_8760"]
     # Don't include this line if running 8760
+
+    # Add pre scaled column to pwts output
+    windog_data["Gross Power - Unscaled"] = windog_data.apply(
+        lambda x: determine_power(x[windog_data_headers["speed"]], float(x["Sector"]), windfarmer_data,
+                                  startup_params["farm_size"]), axis=1)
+
+    windog_data["Wind Speed Unscaled"] = windog_data[windog_data_headers["speed"]]
+
     if is_8760:
         scaled_pwts = goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windfarmer_sectors, startup_params)
         pass

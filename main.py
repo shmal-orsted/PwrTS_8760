@@ -45,7 +45,7 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
 
     # scaling the wind data to an input value, if applicable
     if startup_params["run_8760"] is True:
-        windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)
+        windog_data, momm = scaling.main(windog_data, startup_params, windog_data_headers)  # isn't changing anything, just getting momm
 
     # Making the power time series
     pwts, is_8760 = power_time_series.main(windfarmer_sectors, windfarmer_data, windog_data, windog_data_headers, startup_params,
@@ -54,7 +54,9 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     # Apply losses to the power time series
     # todo only on 8760 false are losses applied
     if startup_params["run_8760"] is True:
-        bulk_loss = 0.0
+        bulk_loss = 0.02  # Accounts directly for the electrical loss instead of applying other losses
+        pwts["Net Power"] = pwts["Gross Power"].mul(1-bulk_loss)
+        pwts = losses_app.just_grid_curtailment(pwts, startup_params)
     else:
         pwts, bulk_loss = losses_app.main(pwts, losses, windog_data_headers, startup_params, working_dir)
 
@@ -67,7 +69,7 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
         export.export_12x24(percent_twelvex24_speed, twelvex24_var_speed, working_dir, "speed")
     # export data
     # add pwts to exports
-    export.export_csv(pwts, working_dir, startup_params["run_8760"])
+    export.export_csv(pwts, working_dir, startup_params["run_8760"], windog_data_headers)
     export.peer_review_print(pwts, startup_params["run_8760"], bulk_loss, working_dir)
 
     return

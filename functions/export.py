@@ -37,7 +37,7 @@ def export_12x24(percent_twelvex24_df, twelvex24_df, working_dir, string):
     return
 
 
-def export_csv(pwts, working_dir, is_8760):
+def export_csv(pwts, working_dir, is_8760, headers):
     # Make path to export to, incorporating if it is an 8760
     cwd = os.getcwd()
     if is_8760:
@@ -47,46 +47,52 @@ def export_csv(pwts, working_dir, is_8760):
 
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
+    pwts["Gross Power - Unscaled (MWh)"] = round(pwts["Gross Power - Unscaled"] / 1000, 2)
     pwts["Gross Power (MWh)"] = round(pwts["Gross Power"]/1000, 2)
     pwts["Net Power (MWh)"] = round(pwts["Net Power"] / 1000, 2)
     pwts = pwts.drop(["Gross Power", "Net Power"], axis=1)
 
-
     # round cosmetic columns
     pwts = pwts.round(2)
-
-    # dropping all the columns we don't want in the output file
-    pwts_output = pwts.drop(["Month", "Year", "Temp Shutdown Loss", "Gross Power + Derating",
-                             "Temperature Derating Loss Value (kW)", "Consumption Loss Value",
-                             "Net Power + Curtailment Loss", "Curtailment Loss"], axis=1)
-    pwts_output.to_csv(path)
+    pwts_output_2 = pwts[[headers["timestamp"], headers["speed"], "Wind Speed Unscaled", headers["direction"],
+                          headers["temperature"], "Gross Power - Unscaled (MWh)", "Gross Power (MWh)", "Net Power (MWh)"]]
+    pwts_output_2.to_csv(path)
     return
 
 
 def peer_review_print(pwts, is_8760, bulk_loss, working_dir):
     timestamp = datetime.datetime.now()
 
-    # TODO Add bulk losses to output file for review
+    # Add bulk losses to output file for review
     # calculate total losses from consumption in % and power (kW)
-    if pwts["Consumption Loss Value"].sum() != 0:
-        consumption_loss_percent = 100 * (pwts["Consumption Loss Value"].sum()/pwts["Gross Power"].sum())
-    else:
+    try:
+        if pwts["Consumption Loss Value"].sum() != 0:
+            consumption_loss_percent = 100 * (pwts["Consumption Loss Value"].sum()/pwts["Gross Power"].sum())
+        else:
+            consumption_loss_percent = 0
+        consumption_loss = pwts["Consumption Loss Value"].sum()
+    except KeyError:
         consumption_loss_percent = 0
-    consumption_loss = pwts["Consumption Loss Value"].sum()
 
     # and derating in % and power
-    if pwts["Temperature Derating Loss Value (kW)"].sum() != 0:
-        derating_loss_percent = pwts["Temperature Derating Loss Value (kW)"].sum() / pwts["Gross Power"].sum()
-    else:
+    try:
+        if pwts["Temperature Derating Loss Value (kW)"].sum() != 0:
+            derating_loss_percent = pwts["Temperature Derating Loss Value (kW)"].sum() / pwts["Gross Power"].sum()
+        else:
+            derating_loss_percent = 0
+        derating_loss = pwts["Temperature Derating Loss Value (kW)"].sum()
+    except KeyError:
         derating_loss_percent = 0
-    derating_loss = pwts["Temperature Derating Loss Value (kW)"].sum()
 
     # and shutdown in % and power
-    if pwts["Temp Shutdown Loss"].sum() != 0:
-        shutdown_loss_percent = pwts["Temp Shutdown Loss"].sum() / pwts["Gross Power"].sum()
-    else:
+    try:
+        if pwts["Temp Shutdown Loss"].sum() != 0:
+            shutdown_loss_percent = pwts["Temp Shutdown Loss"].sum() / pwts["Gross Power"].sum()
+        else:
+            shutdown_loss_percent = 0
+        shutdown_loss = pwts["Temp Shutdown Loss"].sum()
+    except KeyError:
         shutdown_loss_percent = 0
-    shutdown_loss = pwts["Temp Shutdown Loss"].sum()
 
     # and curtailment in % and power
     if pwts["Curtailment Loss"].sum() != 0:
@@ -96,11 +102,11 @@ def peer_review_print(pwts, is_8760, bulk_loss, working_dir):
     curtailment_loss = pwts["Curtailment Loss"].sum()
 
     # for review get total energy production pre-losses
-    # TODO make for an 8760 an annum, Power time series will be total
+    # make for an 8760 an annum, Power time series will be total
     sum_power = pwts["Gross Power"].sum()
 
     # for review, get losses total power generated
-    # TODO make for an 8760 an annum, Power time series will be total
+    # make for an 8760 an annum, Power time series will be total
     losses_sum = pwts['Net Power'].sum()
 
     with open(os.path.join(working_dir,"exports", "review.txt"), "a") as f:

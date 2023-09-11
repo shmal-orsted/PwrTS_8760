@@ -57,6 +57,18 @@ def main(pwts, losses_dict, headers, startup_params, working_dir):
     return pwts, bulk_loss
 
 
+def just_grid_curtailment(pwts, startup_params):
+    # Grid Curtailment - Applied last to the net pwts
+    pwts['Net Power + Curtailment Loss'] = pwts.apply(
+        lambda x: grid_curtailment(x["Net Power"], float(startup_params["grid_curtailment_limit"]) * 1000), axis=1)
+
+    # Split grid curtailment tuple
+    pwts['Net Power'] = pwts.apply(lambda x: x["Net Power + Curtailment Loss"][0], axis=1)
+    pwts['Curtailment Loss'] = pwts.apply(lambda x: x["Net Power + Curtailment Loss"][1], axis=1)
+
+    return pwts
+
+
 def temp_shutdown(pwts, low, high, headers):
     """
     Meant to create a column for lost power due to turbine shutdown. Every value in the gross power column that occurs
