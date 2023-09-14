@@ -45,6 +45,9 @@ def export_csv(pwts, working_dir, is_8760, headers):
     else:
         filename = f"Power Time Series - {datetime.datetime.date(datetime.datetime.now())}_{datetime.datetime.time(datetime.datetime.now()).strftime('%H_%M')}"
 
+    # making sure the index is reset properly before exporting
+    pwts = pwts.reset_index()
+
     path = os.path.join(working_dir, "exports", f"{filename}.csv")
     #Divide pwts columns into MWh
     pwts["Gross Power - Unscaled (MWh)"] = round(pwts["Gross Power - Unscaled"] / 1000, 2)

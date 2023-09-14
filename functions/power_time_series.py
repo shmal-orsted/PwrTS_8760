@@ -86,9 +86,12 @@ def decide_sector(value):
     # determine the wind sector the direction column is in
 
     # make the fpm file pull from 360 direction sectors
-    for x in range(0, 359):
-        sector = f"{round(value)}.0"
-        return str(sector)
+    try:
+        for x in range(0, 359):
+            sector = f"{round(value)}.0"
+            return str(sector)
+    except ValueError:
+        return "0.0"
 
 
 def determine_speed_bin(value):
