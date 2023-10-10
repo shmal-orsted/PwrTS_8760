@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from tmy import tmy_main
 
 def import_windog(windog_filepath, startup_params, working_dir):
@@ -38,6 +39,22 @@ def import_windog(windog_filepath, startup_params, working_dir):
             windog_data_headers_dict["timestamp"] = header
         elif "Tmp" in header:
             windog_data_headers_dict["temperature"] = header
+
+    # replacing invalid values with NaNs for functions
+    windog_data[windog_data_headers_dict["direction"]] = windog_data[windog_data_headers_dict["direction"]].replace(
+        9999, np.NaN)
+    windog_data[windog_data_headers_dict["temperature"]] = windog_data[
+        windog_data_headers_dict["temperature"]].replace(
+        9999, np.NaN)
+    windog_data[windog_data_headers_dict["speed"]] = windog_data[windog_data_headers_dict["speed"]].replace(
+        9999, np.NaN)
+    windog_data[windog_data_headers_dict["direction"]] = windog_data[windog_data_headers_dict["direction"]].replace(
+        -999999, np.NaN)
+    windog_data[windog_data_headers_dict["temperature"]] = windog_data[
+        windog_data_headers_dict["temperature"]].replace(
+        -999999, np.NaN)
+    windog_data[windog_data_headers_dict["speed"]] = windog_data[windog_data_headers_dict["speed"]].replace(
+        -999999, np.NaN)
 
     return windog_data, windog_data_headers_dict
 
