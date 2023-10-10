@@ -59,7 +59,7 @@ def goalseek(windog_data, windfarmer_data, windog_data_headers, input_p50, windf
     # run use normal pwts code again to get a pwts
     # repeat while the p50 sum does not agree with the inputted p50 value
     scaling_adjustment = 0.5
-    while abs(1 - scaling_adjustment) > 0.01:  # change to percentage low enough when releasing (0.01)
+    while abs(1 - scaling_adjustment) > 0.0000000001:  # change to percentage low enough when releasing (0.01)
         # instead of determining a speed bin, going to determine which speed bins it is between, then use a ratio to
         # determine power output
         # use the normal power time series function to get the pwts
