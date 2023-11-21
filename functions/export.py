@@ -57,8 +57,16 @@ def export_csv(pwts, working_dir, is_8760, headers):
 
     # round cosmetic columns
     pwts = pwts.round(2)
-    pwts_output_2 = pwts[[headers["timestamp"], headers["speed"], "Wind Speed Unscaled", headers["direction"],
-                          headers["temperature"], "Gross Power - Unscaled (MWh)", "Gross Power (MWh)", "Net Power (MWh)"]]
+    if is_8760:
+    #adjusting outputs and order based on feedback
+        pwts_output_2 = pwts[[headers["timestamp"], "Gross Power (MWh)",
+                          headers["temperature"], headers["speed"],  headers["direction"], "Wind Speed Unscaled", "Gross Power - Unscaled (MWh)"]]
+        pwts_output_2 = pwts_output_2.rename(columns={"Gross Power (MWh)": "Net Power (MWh)"})
+    else:
+        pwts_output_2 = pwts[[headers["timestamp"], headers["speed"], headers["direction"],
+                              headers["temperature"], "Gross Power (MWh)",
+                              "Net Power (MWh)"]]
+
     pwts_output_2.to_csv(path)
     return
 

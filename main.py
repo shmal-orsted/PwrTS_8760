@@ -54,7 +54,7 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     # Apply losses to the power time series
     # todo only on 8760 false are losses applied
     if startup_params["run_8760"] is True:
-        bulk_loss = 0.02  # Accounts directly for the electrical loss instead of applying other losses
+        bulk_loss = 0.00  # this is already included in the p50 target, if any additional scaling is nessecary
         pwts["Net Power"] = pwts["Gross Power"].mul(1-bulk_loss)
         pwts = losses_app.just_grid_curtailment(pwts, startup_params)
     else:
@@ -64,8 +64,8 @@ def main(fpm_filepath, losses_filepath, startup_params_filepath, txt_filepath, r
     if startup_params["run_8760"] is True:
         percent_twelvex24_df_net, twelvex24_df_net, percent_twelvex24_df_gross, twelvex24_df_gross, \
              percent_twelvex24_speed, twelvex24_var_speed, pwts = twelvex24.main(pwts, windog_data_headers["speed"])
-        export.export_12x24(percent_twelvex24_df_net, twelvex24_df_net, working_dir, "netpower")
-        export.export_12x24(percent_twelvex24_df_gross, twelvex24_df_gross, working_dir, "grosspower")
+        # export.export_12x24(percent_twelvex24_df_net, twelvex24_df_net, working_dir, "netpower") # removing, grosspower is replacing
+        export.export_12x24(percent_twelvex24_df_gross, twelvex24_df_gross, working_dir, "netpower") # changed to net to account for p50 scaling
         export.export_12x24(percent_twelvex24_speed, twelvex24_var_speed, working_dir, "speed")
     # export data
     # add pwts to exports
